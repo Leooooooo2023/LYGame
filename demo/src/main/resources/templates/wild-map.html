@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗺️ 野外捕宠地图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+        
+        .map-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .map-location {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-location:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .map-location::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+        
+        .location-plain::before { background: linear-gradient(90deg, #a8e6cf, #88d8a3); }
+        .location-volcano::before { background: linear-gradient(90deg, #ff6b6b, #ee5a24); }
+        .location-coast::before { background: linear-gradient(90deg, #74b9ff, #0984e3); }
+        .location-forest::before { background: linear-gradient(90deg, #55efc4, #00b894); }
+        .location-valley::before { background: linear-gradient(90deg, #dfe6e9, #b2bec3); }
+        
+        .location-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .location-icon {
+            font-size: 50px;
+            margin-right: 15px;
+        }
+        
+        .location-title {
+            flex: 1;
+        }
+        
+        .location-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+        
+        .location-type {
+            font-size: 14px;
+            color: #636e72;
+        }
+        
+        .location-desc {
+            color: #636e72;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .location-pokemon {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .pokemon-tag {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .tag-fire { background: #ffebee; color: #c0392b; }
+        .tag-water { background: #e3f2fd; color: #2980b9; }
+        .tag-grass { background: #e8f5e9; color: #27ae60; }
+        .tag-normal { background: #f5f5f5; color: #7f8c8d; }
+        .tag-random { background: #fff3e0; color: #e67e22; }
+        
+        .location-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .location-plain .location-btn { background: linear-gradient(135deg, #a8e6cf, #88d8a3); }
+        .location-volcano .location-btn { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .location-coast .location-btn { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+        .location-forest .location-btn { background: linear-gradient(135deg, #55efc4, #00b894); }
+        .location-valley .location-btn { background: linear-gradient(135deg, #dfe6e9, #636e72); }
+        
+        .location-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .info-box {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-title span {
+            margin-right: 10px;
+        }
+        
+        .info-content {
+            color: #636e72;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            font-size: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .bgm-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            border: none;
+            border-radius: 999px;
+            padding: 12px 18px;
+            background: rgba(255,255,255,0.92);
+            color: #2d3436;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+            backdrop-filter: blur(8px);
+        }
+
+        .bgm-toggle-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <button id="bgmToggleBtn" class="bgm-toggle-btn" type="button" onclick="toggleBgmMute()">🔊 音乐开</button>
+    <audio id="bgmPlayer" loop preload="auto"></audio>
+
+    <div class="container">
+        <button class="back-btn" onclick="goBack()">← 返回主界面</button>
+        <h1>🗺️ 野外捕宠地图</h1>
+        
+        <div class="map-container">
+            <!-- 精灵平原 -->
+            <div class="map-location location-plain" onclick="selectLocation('plain')">
+                <div class="location-header">
+                    <div class="location-icon">🏞️</div>
+                    <div class="location-title">
+                        <div class="location-name">精灵平原</div>
+                        <div class="location-type">新手推荐</div>
+                    </div>
+                </div>
+                <div class="location-desc">
+                    广阔的平原地带，适合新手训练师。这里生活着各种常见的精灵，是开始冒险的最佳地点。
+                </div>
+                <div class="location-pokemon">
+                    <span class="pokemon-tag tag-random">⭐ 1-2星随机</span>
+                    <span class="pokemon-tag tag-normal">全属性</span>
+                </div>
+                <button class="location-btn">进入平原</button>
+            </div>
+            
+            <!-- 火山 -->
+            <div class="map-location location-volcano" onclick="selectLocation('volcano')">
+                <div class="location-header">
+                    <div class="location-icon">🌋</div>
+                    <div class="location-title">
+                        <div class="location-name">烈焰火山</div>
+                        <div class="location-type">火系专区</div>
+                    </div>
+                </div>
+                <div class="location-desc">
+                    炽热的火山地带，岩浆流淌。这里是火系精灵的乐园，有机会遇到强力的火系精灵。
+                </div>
+                <div class="location-pokemon">
+                    <span class="pokemon-tag tag-fire">🔥 火系</span>
+                    <span class="pokemon-tag tag-random">1-5星</span>
+                </div>
+                <button class="location-btn">进入火山</button>
+            </div>
+            
+            <!-- 海岸 -->
+            <div class="map-location location-coast" onclick="selectLocation('coast')">
+                <div class="location-header">
+                    <div class="location-icon">🌊</div>
+                    <div class="location-title">
+                        <div class="location-name">碧蓝海岸</div>
+                        <div class="location-type">水系专区</div>
+                    </div>
+                </div>
+                <div class="location-desc">
+                    波涛汹涌的海岸线，海风呼啸。水系精灵在这里繁衍生息，是捕捉水系精灵的绝佳地点。
+                </div>
+                <div class="location-pokemon">
+                    <span class="pokemon-tag tag-water">💧 水系</span>
+                    <span class="pokemon-tag tag-random">1-5星</span>
+                </div>
+                <button class="location-btn">进入海岸</button>
+            </div>
+            
+            <!-- 森林 -->
+            <div class="map-location location-forest" onclick="selectLocation('forest')">
+                <div class="location-header">
+                    <div class="location-icon">🌲</div>
+                    <div class="location-title">
+                        <div class="location-name">神秘森林</div>
+                        <div class="location-type">草系专区</div>
+                    </div>
+                </div>
+                <div class="location-desc">
+                    茂密的原始森林，阳光透过树叶洒下斑驳光影。草系精灵在这里茁壮成长，等待训练师的发现。
+                </div>
+                <div class="location-pokemon">
+                    <span class="pokemon-tag tag-grass">🌿 草系</span>
+                    <span class="pokemon-tag tag-random">1-5星</span>
+                </div>
+                <button class="location-btn">进入森林</button>
+            </div>
+            
+            <!-- 精灵谷 -->
+            <div class="map-location location-valley" onclick="selectLocation('valley')">
+                <div class="location-header">
+                    <div class="location-icon">🏔️</div>
+                    <div class="location-title">
+                        <div class="location-name">精灵谷</div>
+                        <div class="location-type">普通系专区</div>
+                    </div>
+                </div>
+                <div class="location-desc">
+                    宁静的山谷，是普通系精灵的栖息地。这里没有属性的束缚，各种普通系精灵和谐共处。
+                </div>
+                <div class="location-pokemon">
+                    <span class="pokemon-tag tag-normal">⚪ 普通系</span>
+                    <span class="pokemon-tag tag-random">1-5星</span>
+                </div>
+                <button class="location-btn">进入山谷</button>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <div class="info-title">
+                <span>💡</span> 捕宠提示
+            </div>
+            <div class="info-content">
+                • 不同地点会遇到不同属性的精灵，选择适合你队伍的地点进行捕捉<br>
+                • 精灵平原适合新手，只会遇到1-2星精灵<br>
+                • 其他地点可能遇到1-5星精灵，稀有度越高的精灵越难捕捉<br>
+                • 战神驼和副本专属精灵（火凤凰、潮汐海皇、灵光鹿）不会在野外出现<br>
+                • 携带对应属性的精灵战斗会有属性加成
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner">🎯</div>
+            <div>正在寻找野生精灵...</div>
+        </div>
+    </div>
+
+    <script>
+        const BGM_STORAGE_KEY = 'pokemon_game_bgm_muted';
+        const MENU_BGM_SRC = '/audio/menu-bgm.mp3';
+
+        function isBgmMuted() {
+            return localStorage.getItem(BGM_STORAGE_KEY) === 'true';
+        }
+
+        function updateBgmButton() {
+            const btn = document.getElementById('bgmToggleBtn');
+            if (!btn) return;
+            btn.textContent = isBgmMuted() ? '🔇 音乐关' : '🔊 音乐开';
+        }
+
+        async function playBgm() {
+            const player = document.getElementById('bgmPlayer');
+            if (!player) return;
+
+            if (player.dataset.src !== MENU_BGM_SRC) {
+                player.src = MENU_BGM_SRC;
+                player.dataset.src = MENU_BGM_SRC;
+            }
+
+            player.volume = 0.35;
+            player.muted = isBgmMuted();
+            updateBgmButton();
+
+            if (!player.muted) {
+                try {
+                    await player.play();
+                } catch (e) {
+                }
+            }
+        }
+
+        function toggleBgmMute() {
+            const nextMuted = !isBgmMuted();
+            localStorage.setItem(BGM_STORAGE_KEY, String(nextMuted));
+
+            const player = document.getElementById('bgmPlayer');
+            if (player) {
+                player.muted = nextMuted;
+                if (!nextMuted) {
+                    player.play().catch(() => {});
+                }
+            }
+
+            updateBgmButton();
+        }
+
+        function initPageBgm() {
+            updateBgmButton();
+            playBgm();
+
+            const tryStart = () => playBgm();
+            window.addEventListener('click', tryStart, { once: true });
+            window.addEventListener('keydown', tryStart, { once: true });
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    playBgm();
+                }
+            });
+        }
+        // 返回主界面
+        function goBack() {
+            window.location.href = '/game?enter=1';
+        }
+        
+        // 选择地点
+        async function selectLocation(location) {
+            const locationNames = {
+                'plain': '精灵平原',
+                'volcano': '烈焰火山',
+                'coast': '碧蓝海岸',
+                'forest': '神秘森林',
+                'valley': '精灵谷'
+            };
+            
+            // 显示加载
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                // 先获取可用的玩家精灵
+                const response = await fetch('/game/backpack/status');
+                const pokemons = await response.json();
+                
+                // 过滤出可以战斗的精灵（HP>0）
+                const availablePokemons = pokemons.filter(p => p.currentHp > 0);
+                
+                if (availablePokemons.length === 0) {
+                    alert('背包中没有可以战斗的精灵！请先去医院治疗。');
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    return;
+                }
+                
+                // 如果有多个可用精灵，让玩家选择
+                let selectedPokemon;
+                if (availablePokemons.length === 1) {
+                    selectedPokemon = availablePokemons[0];
+                } else {
+                    // 隐藏加载，显示选择
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    const pokemonNames = availablePokemons.map(p => `${p.name} (HP:${p.currentHp}/${p.maxHp})`).join('\n');
+                    const selectedName = prompt(`请选择出战的精灵（输入编号1-${availablePokemons.length}）：\n\n${availablePokemons.map((p, i) => `${i+1}. ${p.name} (HP:${p.currentHp}/${p.maxHp})`).join('\n')}`);
+                    
+                    const selectedIndex = parseInt(selectedName) - 1;
+                    if (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= availablePokemons.length) {
+                        alert('选择无效');
+                        return;
+                    }
+                    selectedPokemon = availablePokemons[selectedIndex];
+                    document.getElementById('loadingOverlay').style.display = 'flex';
+                }
+                
+                // 开始战斗
+                const battleResponse = await fetch('/game/wild/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `pokemonName=${encodeURIComponent(selectedPokemon.name)}&location=${encodeURIComponent(location)}`
+                });
+                
+                const data = await battleResponse.json();
+                
+                if (data.success) {
+                    // 保存战斗数据到sessionStorage，跳转到战斗页面
+                    sessionStorage.setItem('battleData', JSON.stringify(data));
+                    sessionStorage.setItem('battleLocation', locationNames[location]);
+                    window.location.href = '/wild-battle';
+                } else {
+                    alert(data.message || '进入失败');
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('网络错误，请重试');
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        initPageBgm();
+    </script>
+</body>
+</html>
