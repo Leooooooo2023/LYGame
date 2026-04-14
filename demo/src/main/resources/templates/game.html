@@ -2030,7 +2030,7 @@
                     <div style="font-size: 11px; margin-bottom: 3px;">${getRarityStars(pokemon.rarity)}</div>
                     <div>属性: ${getTypeName(pokemon.type)}</div>
                     <div>等级: Lv.${pokemon.level}</div>
-                    <div style="font-size: 12px; color: #666;">性别: ${pokemon.genderLabel || '未知'}</div>
+                                <div style="font-size: 12px; color: #666;">性别: ${getGenderBadge(pokemon.gender, pokemon.genderLabel)}</div>
                     <div class="pokemon-stats">
                         <div>HP: ${pokemon.maxHp} | MP: ${pokemon.maxMp}</div>
                         <div>攻击: ${pokemon.attack} | 防御: ${pokemon.defense} | 速度: ${pokemon.speed}</div>
@@ -2077,7 +2077,7 @@
                     <div style="font-size: 11px; margin-bottom: 3px;">${getRarityStars(pokemon.rarity)}</div>
                     <div>属性: ${getTypeName(pokemon.type)}</div>
                     <div>等级: Lv.${pokemon.level}</div>
-                    <div style="font-size: 12px; color: #666;">性别: ${pokemon.genderLabel || '未知'}</div>
+                                <div style="font-size: 12px; color: #666;">性别: ${getGenderBadge(pokemon.gender, pokemon.genderLabel)}</div>
                     <div class="pokemon-stats">
                         <div>HP: ${pokemon.maxHp} | MP: ${pokemon.maxMp}</div>
                         <div>攻击: ${pokemon.attack} | 防御: ${pokemon.defense} | 速度: ${pokemon.speed}</div>
@@ -2636,7 +2636,7 @@
             if (!genderLabel) {
                 return '<span style="color:#999;">未知</span>';
             }
-            const color = gender === 'MALE' ? '#3498db' : gender === 'FEMALE' ? '#e84393' : '#999';
+            const color = gender === 'MALE' ? '#3498db' : gender === 'FEMALE' ? '#e74c3c' : '#999';
             return `<span style="color:${color}; font-weight:bold;">${genderLabel}</span>`;
         }
 
@@ -2702,16 +2702,6 @@
                                 <h3 style="margin: 0 0 12px; color: #2c3e50;">✨ 被动天赋</h3>
                                 ${talentHtml}
                             </div>
-                            ${templatePreview ? '' : `
-                            <div style="background: #fff; border-radius: 14px; padding: 16px; margin-top: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-                                <h3 style="margin: 0 0 12px; color: #2c3e50;">🌟 进化信息</h3>
-                                ${pokemon.evolutionTarget
-                                    ? `<div style="font-size: 13px; color: #666; margin-bottom: 12px;">下一形态：${pokemon.evolutionTarget} | 条件：Lv.${pokemon.evolutionRequiredLevel || '--'}</div>`
-                                    : '<div style="font-size: 13px; color: #999; margin-bottom: 12px;">当前没有后续进化形态</div>'}
-                                ${pokemon.canEvolve
-                                    ? `<button class="restart-btn" onclick="evolvePokemonById(${pokemon.id})" style="margin-top: 0; background: linear-gradient(135deg, #f39c12, #f1c40f); color: #5a4300;">立即进化</button>`
-                                    : ''}
-                            </div>`}
                         </div>
                     </div>`;
             } catch (error) {
@@ -2721,23 +2711,6 @@
 
         function closePokemonDetailModal() {
             document.getElementById('pokemonDetailModal').style.display = 'none';
-        }
-
-        async function evolvePokemonById(pokemonId) {
-            try {
-                const response = await fetch(`/game/pokemon/evolve?pokemonId=${encodeURIComponent(pokemonId)}`, {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                alert(data.message || '进化完成');
-                if (data.success) {
-                    updateInventoryStatus();
-                    await loadPokemons();
-                    await showPokemonDetailById(pokemonId);
-                }
-            } catch (error) {
-                alert('进化失败，请稍后重试');
-            }
         }
 
         function formatEffectiveness(value) {
@@ -2788,7 +2761,7 @@
                                     <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 5px;">${item.pokemonName} ${item.used ? '<span style="color: #27ae60;">[已出战]</span>' : ''}</div>
-                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)} | ${item.genderLabel || '未知'}</div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)} | ${getGenderBadge(item.gender, item.genderLabel)}</div>
                                 <div style="font-size: 11px; color: #999; margin-bottom: 5px;">❤️ HP: ${currentHp}/${maxHp} | 💧 MP: ${currentMp}/${maxMp}</div>
                                 <div style="font-size: 10px; color: #bbb;">捕获时间: ${new Date(item.caughtTime).toLocaleString()}</div>
                             </div>`;
@@ -2837,7 +2810,7 @@
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName} ${item.used ? '<span style="color: #27ae60;">[出战]</span>' : ''}</div>
                                 <div style="font-size: 11px; margin-bottom: 5px;">${getRarityStars(rarity)}</div>
-                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">${getTypeName(item.pokemonType)} | Lv.${item.level} | ${item.genderLabel || '未知'}</div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">${getTypeName(item.pokemonType)} | Lv.${item.level} | ${getGenderBadge(item.gender, item.genderLabel)}</div>
                                 <div style="background: white; border-radius: 8px; padding: 8px; margin-bottom: 5px;">
                                     <div style="font-size: 11px; color: #e74c3c; margin-bottom: 3px;">❤️ HP: ${currentHp}/${maxHp}</div>
                                     <div style="width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden;">
@@ -3723,7 +3696,7 @@
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(item.rarity)}</div>
-                                <div style="font-size: 11px; color: #666; margin-bottom: 8px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)}</div>
+                                <div style="font-size: 11px; color: #666; margin-bottom: 8px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)} | ${getGenderBadge(item.gender, item.genderLabel)}</div>
                                 ${!canDeposit ? '<div style="font-size: 10px; color: #e74c3c;">最后一个不能移走</div>' : ''}
                             </div>`;
                     });
@@ -3746,7 +3719,7 @@
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(item.rarity)}</div>
-                                <div style="font-size: 11px; color: #666; margin-bottom: 8px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)}</div>
+                                <div style="font-size: 11px; color: #666; margin-bottom: 8px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)} | ${getGenderBadge(item.gender, item.genderLabel)}</div>
                                 ${!canWithdraw ? '<div style="font-size: 10px; color: #e74c3c;">背包已满</div>' : ''}
                             </div>`;
                     });
@@ -4121,7 +4094,13 @@
                 const data = await response.json();
                 alert(data.message || '孵蛋开始');
                 if (data.success) {
+                    selectedPokemonName = null;
+                    const selectedDisplay = document.getElementById('selectedPokemonDisplay');
+                    if (selectedDisplay) {
+                        selectedDisplay.style.display = 'none';
+                    }
                     updateInventoryStatus();
+                    await loadPokemons();
                     await showBreedingRoom();
                 }
             } catch (error) {

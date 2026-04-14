@@ -77,7 +77,7 @@ public class GameController {
     private static final int TRAINER_BATTLE_POKEMON_COUNT = 6;
     private static final int BREEDING_COST = 500;
     private static final int MAX_ACTIVE_EGGS = 3;
-    private static final int EGG_REQUIRED_PROGRESS = 4;
+    private static final int EGG_REQUIRED_PROGRESS = 10;
     private static final List<String> SPECIAL_POKEMON_NAMES = Arrays.asList(
             "火凤凰",
             "潮汐海皇",
@@ -737,6 +737,8 @@ public class GameController {
         PokemonEntity male = father.getGender() == PokemonGender.MALE ? father : mother;
         PokemonEntity female = father.getGender() == PokemonGender.FEMALE ? father : mother;
         addGold(userId, -BREEDING_COST);
+        backpackRepository.delete(fatherEntry);
+        backpackRepository.delete(motherEntry);
         PlayerEgg egg = new PlayerEgg(userId, male, female, father.getName() + "精灵蛋", father.getName(), EGG_REQUIRED_PROGRESS);
         playerEggRepository.save(egg);
 
@@ -758,17 +760,19 @@ public class GameController {
         if (egg.getStatus() != EggStatus.READY) {
             return fail("当前精灵蛋还没有准备好");
         }
-        if (!hasPokemonSpace(userId)) {
-            return fail("背包和仓库都满了，请先腾出空间再孵化");
+        if (getAvailablePokemonSlots(userId) < 3) {
+            return fail("空间不足，孵蛋结束时需要同时取回父母和新精灵，请至少预留 3 个位置");
         }
 
         List<com.example.demo.pokemon.enums.PokemonTalentType> inheritedTalents =
                 pokemonService.rollInheritedTalents(egg.getFatherPokemon(), egg.getMotherPokemon());
         PokemonEntity child = pokemonService.createOffspringPokemon(egg.getTargetPokemonName(), inheritedTalents);
-        String placement = placeRewardPokemon(userId, child);
-        if ("sold".equals(placement)) {
+        String fatherPlacement = placePokemonWithoutSelling(userId, egg.getFatherPokemon());
+        String motherPlacement = placePokemonWithoutSelling(userId, egg.getMotherPokemon());
+        String childPlacement = placePokemonWithoutSelling(userId, child);
+        if (fatherPlacement == null || motherPlacement == null || childPlacement == null) {
             pokemonService.deletePokemon(child.getId());
-            return fail("背包和仓库都满了，请先腾出空间再孵化");
+            return fail("空间不足，无法完成孵化，请先清理背包或仓库");
         }
 
         updatePokedex(userId, child, true, false);
@@ -778,7 +782,9 @@ public class GameController {
 
         Map<String, Object> result = successMessage("孵化成功，获得了 " + child.getName());
         result.put("pokemon", toPokemonMap(child));
-        result.put("placement", placement);
+        result.put("placement", childPlacement);
+        result.put("fatherPlacement", fatherPlacement);
+        result.put("motherPlacement", motherPlacement);
         result.put("inheritedTalents", child.getTalentInfos().stream().map(talent -> talent.getName()).collect(Collectors.toList()));
         return result;
     }
@@ -1652,8 +1658,6 @@ public class GameController {
         } else {
             battleLog(state, "【成长】" + player.getName() + " 已达到满级 Lv.60");
         }
-        pokemonService.getEvolutionTargetName(player).ifPresent(target ->
-                battleLog(state, "【进化】" + player.getName() + " 已满足进化条件，可进化为 " + target));
         persistBattlePokemonState(state);
     }
 
@@ -1988,9 +1992,6 @@ public class GameController {
         data.put("talentNames", pokemon.getTalentInfos().stream().map(talent -> talent.getName()).collect(Collectors.toList()));
         data.put("gender", pokemon.getGender() == null ? PokemonGender.UNKNOWN.name() : pokemon.getGender().name());
         data.put("genderLabel", getGenderLabel(pokemon.getGender()));
-        pokemonService.getEvolutionPreviewTargetName(pokemon.getName()).ifPresent(target -> data.put("evolutionTarget", target));
-        pokemonService.getEvolutionRequiredLevel(pokemon.getName()).ifPresent(level -> data.put("evolutionRequiredLevel", level));
-        data.put("canEvolve", pokemonService.getEvolutionTargetName(pokemon).isPresent());
         return data;
     }
 
@@ -2025,9 +2026,6 @@ public class GameController {
         data.put("talentNames", pokemon.getTalentInfos().stream().map(talent -> talent.getName()).collect(Collectors.toList()));
         data.put("gender", pokemon.getGender() == null ? PokemonGender.UNKNOWN.name() : pokemon.getGender().name());
         data.put("genderLabel", getGenderLabel(pokemon.getGender()));
-        data.put("canEvolve", pokemonService.getEvolutionTargetName(pokemon).isPresent());
-        pokemonService.getEvolutionPreviewTargetName(pokemon.getName()).ifPresent(target -> data.put("evolutionTarget", target));
-        pokemonService.getEvolutionRequiredLevel(pokemon.getName()).ifPresent(level -> data.put("evolutionRequiredLevel", level));
         data.put("caughtTime", item.getCaughtTime());
         data.put("used", item.isUsed());
         data.put("source", "backpack");
@@ -2449,9 +2447,25 @@ public class GameController {
                         .findFirst());
     }
 
-    private boolean hasPokemonSpace(Long userId) {
-        return backpackRepository.countByUserId(userId) < BACKPACK_MAX_SIZE
-                || storageRepository.countByUserId(userId) < getStorageCapacity(userId);
+    private int getAvailablePokemonSlots(Long userId) {
+        long backpackSlots = Math.max(0, BACKPACK_MAX_SIZE - backpackRepository.countByUserId(userId));
+        long storageSlots = Math.max(0, getStorageCapacity(userId) - storageRepository.countByUserId(userId));
+        return (int) (backpackSlots + storageSlots);
+    }
+
+    private String placePokemonWithoutSelling(Long userId, PokemonEntity pokemon) {
+        if (pokemon == null) {
+            return null;
+        }
+        if (backpackRepository.countByUserId(userId) < BACKPACK_MAX_SIZE) {
+            backpackRepository.save(new BackpackEntity(userId, pokemon));
+            return "backpack";
+        }
+        if (storageRepository.countByUserId(userId) < getStorageCapacity(userId)) {
+            storageRepository.save(new StorageEntity(userId, pokemon));
+            return "storage";
+        }
+        return null;
     }
 
     private int getEggProgressByMode(BattleMode mode) {
