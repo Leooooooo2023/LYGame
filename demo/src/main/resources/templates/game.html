@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -10,9 +10,9 @@
             font-family: 'Microsoft YaHei', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 8px;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1320px; margin: 0 auto; }
         h1 {
             text-align: center;
             color: white;
@@ -23,42 +23,90 @@
         .selection-screen {
             background: white;
             border-radius: 20px;
-            padding: 30px;
+            padding: 16px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             position: relative;
+            min-height: calc(100vh - 16px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         .selection-screen h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             color: #333;
+            font-size: 1.45em;
+        }
+        .selection-layout {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            flex: 1;
+            min-height: 0;
+        }
+        .selection-main {
+            flex: 1;
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+        }
+        .selection-sidebar {
+            width: 102px;
+            flex-shrink: 0;
         }
         .pokemon-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 4px;
+            align-content: start;
+            width: 100%;
         }
         .pokemon-card {
             background: linear-gradient(145deg, #f5f5f5, #e0e0e0);
             border-radius: 15px;
-            padding: 20px;
+            padding: 10px 76px 10px 10px;
             cursor: pointer;
             transition: all 0.3s ease;
             border: 3px solid transparent;
+            position: relative;
+            min-height: 174px;
+            overflow: hidden;
         }
         .pokemon-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             border-color: #667eea;
         }
+        .pokemon-card.selected {
+            border-color: #27ae60;
+            background: linear-gradient(145deg, #f3fff6, #dbf7e4);
+            box-shadow: 0 12px 28px rgba(39, 174, 96, 0.22);
+            transform: translateY(-2px);
+        }
+        .pokemon-card.selected::after {
+            content: '首战';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2);
+        }
         .pokemon-image-container {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 10px;
+            width: 56px;
+            height: 56px;
             background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
             border-radius: 10px;
-            padding: 10px;
-            position: relative;
+            padding: 5px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.08);
         }
         .pokemon-image {
             width: 100%;
@@ -78,9 +126,10 @@
             text-align: center;
         }
         .pokemon-card h3 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 1.3em;
+            text-align: left;
+            margin-bottom: 3px;
+            font-size: 0.96em;
+            padding-right: 8px;
         }
         .type-fire { color: #e74c3c; }
         .type-water { color: #3498db; }
@@ -88,21 +137,57 @@
         .pokemon-stats {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            margin: 10px 0;
-            font-size: 0.9em;
+            gap: 2px;
+            margin: 4px 0;
+            font-size: 0.71em;
             color: #555;
+        }
+        .pokemon-card-info {
+            max-width: calc(100% - 4px);
+        }
+        .pokemon-card-meta {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 2px;
+            line-height: 1.2;
+        }
+        .pokemon-card-talent {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 4px;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .pokemon-card .moves-list {
+            margin-top: 2px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            max-height: 28px;
+            overflow: hidden;
+        }
+        .pokemon-card .move-tag {
+            padding: 3px 6px;
+            font-size: 9px;
+            margin: 0;
         }
         .select-btn {
             width: 100%;
-            padding: 12px;
+            padding: 6px 8px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.76em;
             transition: all 0.3s;
+        }
+        .select-btn.selected-action {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            box-shadow: 0 6px 14px rgba(39, 174, 96, 0.22);
         }
         .select-btn:hover {
             transform: scale(1.05);
@@ -233,6 +318,41 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+        }
+        #pokemonDetailModal {
+            z-index: 5000;
+        }
+        @media (max-width: 1200px) {
+            .selection-layout {
+                flex-direction: column;
+            }
+            .selection-sidebar {
+                width: 100%;
+            }
+            .selection-main {
+                display: block;
+            }
+            .pokemon-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            .selection-screen {
+                padding: 16px;
+            }
+            .pokemon-card {
+                min-height: auto;
+                padding: 14px;
+            }
+            .pokemon-image-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 0 0 10px auto;
+            }
         }
         .result-content {
             background: white;
@@ -559,8 +679,8 @@
         <div id="selectionScreen" class="selection-screen" style="display: none;">
             <button id="mysteryGoldBtn" class="mystery-gold-btn" type="button" onclick="requestMysteryGoldAccess()" title="神秘金币调节">✦</button>
             <h2>选择你的精灵</h2>
-            <div style="display: flex; gap: 20px;">
-                <div style="width: 120px; flex-shrink: 0;">
+            <div class="selection-layout">
+                <div class="selection-sidebar">
                     <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 10px; font-size: 12px; color: #666; text-align: center;">
                         <div style="margin-bottom: 5px;">🎒 <strong id="backpackCount">--</strong>/<span id="backpackMaxCount">6</span></div>
                         <div style="margin-bottom: 5px;">🏠 <strong id="storageCount">--</strong>/<span id="storageMaxCount">30</span></div>
@@ -600,12 +720,12 @@
                         </button>
                     </div>
                 </div>
-                <div style="flex: 1;">
+                <div class="selection-main">
                     <div id="pokemonGrid" class="pokemon-grid">
                         <div class="loading">加载中...</div>
                     </div>
                 </div>
-                <div style="width: 120px; flex-shrink: 0;">
+                <div class="selection-sidebar">
                     <div style="padding: 10px; background: linear-gradient(145deg, #fff9e6, #ffe4b5); border-radius: 10px; margin-bottom: 15px; text-align: center;">
                         <div style="font-size: 11px; color: #666; margin-bottom: 5px;">⚔️ 对战模式</div>
                         <div style="font-size: 10px; color: #999;">选择精灵后点击</div>
@@ -614,10 +734,10 @@
                         <button id="wildBattleBtn" class="sidebar-btn" onclick="goToWildMap()" style="padding: 15px 8px; border: none; border-radius: 10px; background: linear-gradient(135deg, #f39c12, #e67e22); color: white; cursor: pointer; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.3s;">
                             <span style="font-size: 24px;">🌲</span><span>野外捕宠</span><span style="font-size: 10px; opacity: 0.8;">(动态等级)</span>
                         </button>
-                        <button id="trainerBattleBtn" class="sidebar-btn" onclick="showTrainerDifficultyModal()" style="padding: 15px 8px; border: none; border-radius: 10px; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; cursor: pointer; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.3s; opacity: 0.6;" disabled>
+                        <button id="trainerBattleBtn" class="sidebar-btn" onclick="showTrainerDifficultyModal()" style="padding: 15px 8px; border: none; border-radius: 10px; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; cursor: pointer; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.3s; opacity: 0.6;">
                             <span style="font-size: 24px;">👤</span><span>训练师对战</span><span id="trainerBattleSubtext" style="font-size: 10px; opacity: 0.8;">(需6只精灵)</span>
                         </button>
-                        <button id="dungeonBattleBtn" class="sidebar-btn" onclick="showDungeonModal()" style="padding: 15px 8px; border: none; border-radius: 10px; background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; cursor: pointer; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.3s; opacity: 0.6;" disabled>
+                        <button id="dungeonBattleBtn" class="sidebar-btn" onclick="showDungeonModal()" style="padding: 15px 8px; border: none; border-radius: 10px; background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; cursor: pointer; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.3s; opacity: 0.6;">
                             <span style="font-size: 24px;">🏰</span><span>副本挑战</span><span id="dungeonBattleSubtext" style="font-size: 10px; opacity: 0.8;">(需6只精灵)</span>
                         </button>
                     </div>
@@ -888,7 +1008,7 @@
     
     <!-- 金币帮助弹窗 -->
     <div id="goldHelpModal" class="result-modal" style="display: none;">
-        <div class="result-content" style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <div class="result-content" style="max-width: 620px; max-height: 90vh; overflow-y: auto;">
             <h2>💰 金币指南</h2>
             
             <div style="background: linear-gradient(135deg, #fff9e6, #ffe4b5); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
@@ -903,12 +1023,20 @@
                         <span style="font-size: 13px;">初级球50金 | 中级球100金 | 高级球200金 | 大师球500金</span>
                     </div>
                     <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
+                        <strong style="color: #16a085;">🧪 购买恢复与经验道具</strong><br>
+                        <span style="font-size: 13px;">生命果、能量石、经验果都需要金币购买，越高级价格越高</span>
+                    </div>
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
                         <strong style="color: #9b59b6;">🏠 扩充仓库</strong><br>
                         <span style="font-size: 13px;">每次扩充10格容量：1000金币</span>
                     </div>
-                    <div style="padding: 10px; background: white; border-radius: 8px;">
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
                         <strong style="color: #e84393;">🎰 抽奖</strong><br>
                         <span style="font-size: 13px;">每次抽奖：100金币</span>
+                    </div>
+                    <div style="padding: 10px; background: white; border-radius: 8px;">
+                        <strong style="color: #ff7675;">🥚 孵蛋室</strong><br>
+                        <span style="font-size: 13px;">同种异性精灵配对孵蛋时，会消耗一定金币</span>
                     </div>
                 </div>
             </div>
@@ -917,28 +1045,28 @@
                 <h3 style="color: #27ae60; margin-bottom: 15px; font-size: 16px;">💎 如何获取金币</h3>
                 <div style="font-size: 14px; color: #666; line-height: 1.8;">
                     <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
-                        <strong style="color: #e74c3c;">⚔️ 野外战斗胜利</strong><br>
-                        <span style="font-size: 13px;">赢得对战：+100金币</span>
+                        <strong style="color: #e67e22;">🌲 野外捕宠与战斗</strong><br>
+                        <span style="font-size: 13px;">击败野生精灵、成功捕获精灵，都能稳定获得金币</span>
                     </div>
                     <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
                         <strong style="color: #3498db;">🎯 训练师对战</strong><br>
-                        <span style="font-size: 13px;">击败训练师：+1000金币</span>
+                        <span style="font-size: 13px;">难度越高奖励越高，是中后期最稳定的刷金币方式之一</span>
                     </div>
                     <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
                         <strong style="color: #9b59b6;">🏰 副本挑战</strong><br>
-                        <span style="font-size: 13px;">通关副本：+1000金币</span>
-                    </div>
-                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
-                        <strong style="color: #f39c12;">🎾 成功捕获</strong><br>
-                        <span style="font-size: 13px;">捕获成功：+100金币</span>
+                        <span style="font-size: 13px;">通关后金币和精灵奖励都更丰厚，适合强队挑战</span>
                     </div>
                     <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
                         <strong style="color: #e84393;">🎰 抽奖获得</strong><br>
-                        <span style="font-size: 13px;">一等奖1000金 | 三等奖250金 | 普通奖100金 | 安慰奖50金</span>
+                        <span style="font-size: 13px;">抽奖除了精灵奖励外，也可能直接获得金币奖励</span>
                     </div>
-                    <div style="padding: 10px; background: white; border-radius: 8px;">
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px;">
                         <strong style="color: #27ae60;">💰 贩卖精灵</strong><br>
                         <span style="font-size: 13px;">1星50金 | 2星100金 | 3星150金 | 4星200金 | 5星250金</span>
+                    </div>
+                    <div style="padding: 10px; background: white; border-radius: 8px;">
+                        <strong style="color: #6c5ce7;">🏆 成就奖励</strong><br>
+                        <span style="font-size: 13px;">达成成就后可领取额外金币，记得及时查看成就界面</span>
                     </div>
                 </div>
             </div>
@@ -946,7 +1074,7 @@
             <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
                 <div style="font-size: 13px; color: #666; text-align: center;">
                     <strong>💡 小贴士</strong><br>
-                    合理规划金币使用，优先治疗受伤精灵，多参与战斗和副本挑战来积累财富！
+                    前期优先买球和治疗，中后期多打训练师/副本，再把多余精灵卖掉，金币会积累得更快。
                 </div>
             </div>
             
@@ -991,7 +1119,7 @@
 
     <!-- 商店弹窗 -->
     <div id="shopModal" class="result-modal" style="display: none;">
-        <div class="result-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+        <div class="result-content" style="max-width: 1180px; width: 96vw; max-height: 92vh; overflow-y: auto;">
             <h2>🛒 道具商店</h2>
             
             <!-- 当前金币和精灵球库存显示 -->
@@ -1023,9 +1151,17 @@
                 </div>
             </div>
             
+            <!-- 贩卖精灵按钮 -->
+            <div style="text-align: center; margin: 18px 0; padding: 18px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 14px;">
+                <div style="font-size: 14px; color: #2e7d32; margin-bottom: 10px;">💰 想要获得更多金币？可以优先在这里出售多余精灵</div>
+                <button class="restart-btn" onclick="showSellPokemonModal()" style="background: linear-gradient(135deg, #27ae60, #229954); font-size: 16px; padding: 12px 30px;">💰 贩卖精灵</button>
+            </div>
+
             <!-- 商品列表 -->
             <div id="shopItems">
-                <div style="background: linear-gradient(135deg, #ffebee, #ffcdd2); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 17px; font-weight: bold; color: #2c3e50; margin-bottom: 12px;">🔮 精灵球</div>
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px;">
+                <div style="background: linear-gradient(135deg, #ffebee, #ffcdd2); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🔴</div>
                         <div>
@@ -1042,7 +1178,7 @@
                     </div>
                 </div>
                 
-                <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🔵</div>
                         <div>
@@ -1059,7 +1195,7 @@
                     </div>
                 </div>
                 
-                <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🟣</div>
                         <div>
@@ -1076,7 +1212,7 @@
                     </div>
                 </div>
                 
-                <div style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🟡</div>
                         <div>
@@ -1092,14 +1228,16 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
             
             <!-- 恢复道具区域 -->
             <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 12px; padding: 15px; margin: 20px 0;">
                 <div style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 15px; text-align: center;">🧪 恢复道具</div>
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
                 
                 <!-- 生命果 -->
-                <div style="background: linear-gradient(135deg, #ffebee, #ffcdd2); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #ffebee, #ffcdd2); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🍎</div>
                         <div>
@@ -1118,7 +1256,7 @@
                 </div>
                 
                 <!-- 大生命果 -->
-                <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🍏</div>
                         <div>
@@ -1137,7 +1275,7 @@
                 </div>
                 
                 <!-- 能量石 -->
-                <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">💎</div>
                         <div>
@@ -1156,7 +1294,7 @@
                 </div>
                 
                 <!-- 大能量石 -->
-                <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">💠</div>
                         <div>
@@ -1175,7 +1313,7 @@
                 </div>
                 
                 <!-- 精华草 -->
-                <div style="background: linear-gradient(135deg, #e0f2f1, #b2dfdb); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #e0f2f1, #b2dfdb); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🌿</div>
                         <div>
@@ -1194,7 +1332,7 @@
                 </div>
                 
                 <!-- 神仙草 -->
-                <div style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🌱</div>
                         <div>
@@ -1211,16 +1349,14 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
-            
-            <!-- 贩卖精灵按钮 -->
-            <div style="text-align: center; margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 12px;">
-                <div style="font-size: 14px; color: #2e7d32; margin-bottom: 10px;">💰 想要获得更多金币？</div>
-                <button class="restart-btn" onclick="showSellPokemonModal()" style="background: linear-gradient(135deg, #27ae60, #229954); font-size: 16px; padding: 12px 30px;">💰 贩卖精灵</button>
-            </div>
-            
+
+            <div style="background: linear-gradient(135deg, #fff7d6, #ffe2a8); border-radius: 12px; padding: 15px; margin: 20px 0;">
+                <div style="font-size: 16px; font-weight: bold; color: #b26a00; margin-bottom: 15px; text-align: center;">🍇 经验道具</div>
+                <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;">
                 <!-- 小经验果 -->
-                <div style="background: linear-gradient(135deg, #fff3cd, #ffe8a1); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #fff3cd, #ffe8a1); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🍊</div>
                         <div>
@@ -1239,7 +1375,7 @@
                 </div>
 
                 <!-- 中经验果 -->
-                <div style="background: linear-gradient(135deg, #ffe9d6, #ffd0a8); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #ffe9d6, #ffd0a8); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🍑</div>
                         <div>
@@ -1258,7 +1394,7 @@
                 </div>
 
                 <!-- 大经验果 -->
-                <div style="background: linear-gradient(135deg, #fff0d6, #ffc785); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: linear-gradient(135deg, #fff0d6, #ffc785); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; min-height: 122px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 40px;">🍍</div>
                         <div>
@@ -1275,6 +1411,8 @@
                         </div>
                     </div>
                 </div>
+                </div>
+            </div>
 
             <button class="restart-btn" onclick="closeShop()" style="margin-top: 15px;">关闭</button>
         </div>
@@ -1520,6 +1658,7 @@
 
     <script>
         let selectedPokemonName = null;
+        let selectedPokemonId = null;
         let isStarterSelectionMode = false;
         let isMysteryGoldVerified = false;
         const BGM_STORAGE_KEY = 'pokemon_game_bgm_muted';
@@ -1672,6 +1811,7 @@
             }
 
             selectedPokemonName = null;
+            selectedPokemonId = null;
             isStarterSelectionMode = false;
             await refreshSaveStatus();
 
@@ -1814,6 +1954,7 @@
             }
 
             selectedPokemonName = null;
+            selectedPokemonId = null;
             isStarterSelectionMode = false;
 
             const selectedDisplay = document.getElementById('selectedPokemonDisplay');
@@ -2026,24 +2167,29 @@
                         <img src="${imagePath}" alt="${pokemon.name}" class="pokemon-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="pokemon-placeholder" style="display:none;">${pokemon.name}</div>
                     </div>
+                    <div class="pokemon-card-info">
                     <h3 class="type-${pokemon.type.toLowerCase()}">${pokemon.name}</h3>
                     <div style="font-size: 11px; margin-bottom: 3px;">${getRarityStars(pokemon.rarity)}</div>
-                    <div>属性: ${getTypeName(pokemon.type)}</div>
-                    <div>等级: Lv.${pokemon.level}</div>
-                                <div style="font-size: 12px; color: #666;">性别: ${getGenderBadge(pokemon.gender, pokemon.genderLabel)}</div>
+                    <div class="pokemon-card-meta">属性: ${getTypeName(pokemon.type)}</div>
+                    <div class="pokemon-card-meta">等级: Lv.${pokemon.level}</div>
+                                <div class="pokemon-card-meta">性别: ${getGenderBadge(pokemon.gender, pokemon.genderLabel)}</div>
                     <div class="pokemon-stats">
                         <div>HP: ${pokemon.maxHp} | MP: ${pokemon.maxMp}</div>
                         <div>攻击: ${pokemon.attack} | 防御: ${pokemon.defense} | 速度: ${pokemon.speed}</div>
                     </div>
-                    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">天赋: ${getTalentText(pokemon.talents || pokemon.talentNames, pokemon.templatePreview)}</div>
+                    <div class="pokemon-card-talent">天赋: ${getTalentText(pokemon.talents || pokemon.talentNames, pokemon.templatePreview)}</div>
                     <div class="moves-list">${movesHtml}</div>
+                    </div>
                     <div style="display:flex; gap:8px; justify-content:center; margin-top: 10px; flex-wrap: wrap;">
-                        <button class="select-btn" onclick="selectPokemon('${pokemon.name}')">选择</button>
+                        <button class="select-btn" onclick="selectPokemon('${pokemon.name}', ${pokemon.id})">选择</button>
                         <button class="select-btn" style="background: linear-gradient(135deg, #16a085, #1abc9c);" onclick="showPokemonDetailById(${pokemon.id}, ${pokemon.templatePreview ? 'true' : 'false'})">技能详情</button>
                     </div>
                 `;
                 grid.appendChild(card);
             }
+
+            renderSelectedPokemonCardState();
+            checkTrainerBattleEligibility();
         }
         
         async function displayPokemons(pokemons) {
@@ -2073,27 +2219,121 @@
                         <img src="${imagePath}" alt="${pokemon.name}" class="pokemon-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="pokemon-placeholder" style="display:none;">${pokemon.name}</div>
                     </div>
+                    <div class="pokemon-card-info">
                     <h3 class="type-${pokemon.type.toLowerCase()}">${pokemon.name}</h3>
                     <div style="font-size: 11px; margin-bottom: 3px;">${getRarityStars(pokemon.rarity)}</div>
-                    <div>属性: ${getTypeName(pokemon.type)}</div>
-                    <div>等级: Lv.${pokemon.level}</div>
-                                <div style="font-size: 12px; color: #666;">性别: ${getGenderBadge(pokemon.gender, pokemon.genderLabel)}</div>
+                    <div class="pokemon-card-meta">属性: ${getTypeName(pokemon.type)}</div>
+                    <div class="pokemon-card-meta">等级: Lv.${pokemon.level}</div>
+                                <div class="pokemon-card-meta">性别: ${getGenderBadge(pokemon.gender, pokemon.genderLabel)}</div>
                     <div class="pokemon-stats">
                         <div>HP: ${pokemon.maxHp} | MP: ${pokemon.maxMp}</div>
                         <div>攻击: ${pokemon.attack} | 防御: ${pokemon.defense} | 速度: ${pokemon.speed}</div>
                     </div>
-                    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">天赋: ${getTalentText(pokemon.talents || pokemon.talentNames, pokemon.templatePreview)}</div>
+                    <div class="pokemon-card-talent">天赋: ${getTalentText(pokemon.talents || pokemon.talentNames, pokemon.templatePreview)}</div>
                     <div class="moves-list">${movesHtml}</div>
+                    </div>
                     <div style="display:flex; gap:8px; justify-content:center; margin-top: 10px; flex-wrap: wrap;">
-                        <button class="select-btn" onclick="selectPokemon('${pokemon.name}')">选择</button>
+                        <button class="select-btn" onclick="selectPokemon('${pokemon.name}', ${pokemon.id})">选择</button>
                         <button class="select-btn" style="background: linear-gradient(135deg, #16a085, #1abc9c);" onclick="showPokemonDetailById(${pokemon.id}, ${pokemon.templatePreview ? 'true' : 'false'})">技能详情</button>
                     </div>
                 `;
                 grid.appendChild(card);
             }
+
+            renderSelectedPokemonCardState();
+            checkTrainerBattleEligibility();
         }
         
-        async function selectPokemon(name) {
+        function getCurrentBackpackPokemonCount() {
+            const backpackCountEl = document.getElementById('backpackCount');
+            const parsedCount = parseInt(backpackCountEl ? backpackCountEl.textContent : '0', 10);
+            return Number.isFinite(parsedCount) ? parsedCount : 0;
+        }
+
+        function renderSelectedPokemonCardState() {
+            document.querySelectorAll('.pokemon-card').forEach(card => {
+                card.classList.remove('selected');
+                const primaryButton = card.querySelector('.select-btn');
+                if (primaryButton) {
+                    primaryButton.classList.remove('selected-action');
+                    primaryButton.textContent = '选择';
+                }
+            });
+
+            if (!selectedPokemonId) {
+                return;
+            }
+
+            const selectedCard = document.getElementById(`card-${selectedPokemonId}`);
+            if (!selectedCard) {
+                return;
+            }
+
+            selectedCard.classList.add('selected');
+            const selectedButton = selectedCard.querySelector('.select-btn');
+            if (selectedButton) {
+                selectedButton.classList.add('selected-action');
+                selectedButton.textContent = '已设为首战';
+            }
+        }
+
+        function checkTrainerBattleEligibility() {
+            const backpackCount = getCurrentBackpackPokemonCount();
+            const hasFullTeam = backpackCount >= 6;
+            const hasSelectedStarter = !!selectedPokemonName && !!selectedPokemonId;
+
+            const trainerBattleBtn = document.getElementById('trainerBattleBtn');
+            const dungeonBattleBtn = document.getElementById('dungeonBattleBtn');
+            const trainerBattleSubtext = document.getElementById('trainerBattleSubtext');
+            const dungeonBattleSubtext = document.getElementById('dungeonBattleSubtext');
+
+            const canChallenge = hasFullTeam && hasSelectedStarter;
+            const subtext = !hasFullTeam
+                ? '(背包需满6只精灵)'
+                : hasSelectedStarter
+                    ? '(已满足挑战条件)'
+                    : '(请先选择首战精灵)';
+
+            [trainerBattleBtn, dungeonBattleBtn].forEach(button => {
+                if (!button) {
+                    return;
+                }
+                button.style.opacity = canChallenge ? '1' : '0.72';
+                button.style.filter = canChallenge ? 'none' : 'grayscale(18%)';
+            });
+
+            if (trainerBattleSubtext) {
+                trainerBattleSubtext.textContent = subtext;
+            }
+            if (dungeonBattleSubtext) {
+                dungeonBattleSubtext.textContent = subtext;
+            }
+        }
+
+        function validateAdvancedBattleAccess(modeLabel) {
+            const backpackCount = getCurrentBackpackPokemonCount();
+            if (backpackCount < 6) {
+                openInfoMenuDialog(
+                    `${modeLabel}未开启`,
+                    '背包精灵未满 6 只，请先补齐队伍后再挑战。',
+                    'warning'
+                );
+                return false;
+            }
+
+            if (!selectedPokemonName || !selectedPokemonId) {
+                openInfoMenuDialog(
+                    `${modeLabel}未开启`,
+                    '请先在游戏界面选择一只首战精灵。',
+                    'warning'
+                );
+                return false;
+            }
+
+            return true;
+        }
+
+        async function selectPokemon(name, pokemonId) {
             const isInitialSelection = isStarterSelectionMode === true;
 
             if (isInitialSelection) {
@@ -2118,13 +2358,8 @@
             }
 
             selectedPokemonName = name;
-            document.querySelectorAll('.pokemon-card').forEach(card => card.classList.remove('selected'));
-            document.querySelectorAll('.pokemon-card').forEach(card => {
-                const title = card.querySelector('h3');
-                if (title && title.textContent === name) {
-                    card.classList.add('selected');
-                }
-            });
+            selectedPokemonId = pokemonId;
+            renderSelectedPokemonCardState();
 
             // 更新已选择精灵显示
             const selectedDisplay = document.getElementById('selectedPokemonDisplay');
@@ -2140,9 +2375,13 @@
             if (battleBtn) battleBtn.disabled = false;
             if (trainerBattleBtn) trainerBattleBtn.disabled = false;
             if (dungeonBattleBtn) dungeonBattleBtn.disabled = false;
+            checkTrainerBattleEligibility();
         }
 
         function showTrainerDifficultyModal() {
+            if (!validateAdvancedBattleAccess('训练师对战')) {
+                return;
+            }
             document.getElementById('trainerDifficultyModal').style.display = 'flex';
         }
 
@@ -2310,7 +2549,11 @@
             
             // 只有野外捕宠才刷新精灵球
             if (isWildBattle) {
-                refreshBattleBallCounts();
+                if (data.pokeBalls) {
+                    applyBattleBallCounts(data.pokeBalls);
+                } else {
+                    refreshBattleBallCounts();
+                }
                 selectPokeBall('BASIC');
             }
 
@@ -2320,6 +2563,10 @@
         function updateBattleDisplay(data) {
             const player = data.playerPokemon;
             const enemy = data.enemyPokemon;
+
+            if (data.pokeBalls) {
+                applyBattleBallCounts(data.pokeBalls);
+            }
             
             // 防御性检查
             if (!player || !enemy) {
@@ -2643,6 +2890,7 @@
         async function showPokemonDetailById(pokemonId, templatePreview = false) {
             const modal = document.getElementById('pokemonDetailModal');
             const content = document.getElementById('pokemonDetailContent');
+            document.body.appendChild(modal);
             modal.style.display = 'flex';
             content.innerHTML = '<p>加载中...</p>';
 
@@ -2824,7 +3072,7 @@
                                     </div>
                                 </div>
                                 <div style="font-size: 12px; color: #666; margin-bottom: 8px;">天赋: ${getTalentText(item.talents || item.talentNames)}</div>
-                                <button class="restart-btn" onclick="showPokemonDetailById(${item.pokemonId});" style="margin-top: 0; padding: 8px 18px; font-size: 12px; background: linear-gradient(135deg, #16a085, #1abc9c);">技能详情</button>
+                                <button class="restart-btn" onclick="event.stopPropagation(); showPokemonDetailById(${item.pokemonId});" style="margin-top: 0; margin-bottom: 8px; padding: 6px 14px; font-size: 12px; background: linear-gradient(135deg, #16a085, #1abc9c);">技能详情</button>
                             </div>`;
                     });
                     html += '</div>';
@@ -3125,11 +3373,11 @@
                                 </div>
                             </div>`;
                         } else {
-                            // 未获得：只显示问号和属性，隐藏图片和详细数据
+                            // 未获得：显示精灵图片轮廓，但隐藏详细信息
                             html += `
                             <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9; text-align: center; opacity: 0.8;">
-                                <div style="width: 80px; height: 80px; margin: 0 auto 10px; background: linear-gradient(145deg, #d5d5d5, #b0b0b0); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <span style="font-size: 40px; color: #888;">?</span>
+                                <div style="width: 80px; height: 80px; margin: 0 auto 10px; background: linear-gradient(145deg, #d5d5d5, #b0b0b0); border-radius: 50%; padding: 8px;">
+                                    <img src="${imagePath}" alt="${entry.pokemonName}" style="width: 100%; height: 100%; object-fit: contain; filter: grayscale(100%) brightness(0.75); opacity: 0.85;" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=&quot;font-size: 40px; color: #888;&quot;>?</span>'; this.parentNode.style.display='flex'; this.parentNode.style.alignItems='center'; this.parentNode.style.justifyContent='center';">
                                 </div>
                                 <div style="font-weight: bold; color: #888; margin-bottom: 5px;">❓ 未知精灵</div>
                                 <div style="font-size: 12px; color: #aaa; margin-bottom: 5px;">${getTypeName(entry.pokemonType)}</div>
@@ -3185,14 +3433,20 @@
             try {
                 const response = await fetch(`/game/catch?ballType=${selectedPokeBall}`, { method: 'POST' });
                 const data = await response.json();
+                if (data.pokeBalls) {
+                    applyBattleBallCounts(data.pokeBalls);
+                }
                 
                 if (!data.success && data.message && data.message.includes('数量不足')) {
+                    await refreshBattleBallCounts();
+                    updateInventoryStatus();
                     alert(data.message);
                     return;
                 }
                 
                 // 刷新精灵球数量
                 await refreshBattleBallCounts();
+                updateInventoryStatus();
                 
                 if (data.battleLog) {
                     const logDiv = document.getElementById('battleLog');
@@ -3697,6 +3951,7 @@
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(item.rarity)}</div>
                                 <div style="font-size: 11px; color: #666; margin-bottom: 8px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)} | ${getGenderBadge(item.gender, item.genderLabel)}</div>
+                                <button class="restart-btn" onclick="event.stopPropagation(); showPokemonDetailById(${item.pokemonId});" style="margin-top: 0; margin-bottom: 8px; padding: 6px 14px; font-size: 12px; background: linear-gradient(135deg, #16a085, #1abc9c);">技能详情</button>
                                 ${!canDeposit ? '<div style="font-size: 10px; color: #e74c3c;">最后一个不能移走</div>' : ''}
                             </div>`;
                     });
@@ -3720,6 +3975,7 @@
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(item.rarity)}</div>
                                 <div style="font-size: 11px; color: #666; margin-bottom: 8px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)} | ${getGenderBadge(item.gender, item.genderLabel)}</div>
+                                <button class="restart-btn" onclick="event.stopPropagation(); showPokemonDetailById(${item.pokemonId});" style="margin-top: 0; margin-bottom: 8px; padding: 6px 14px; font-size: 12px; background: linear-gradient(135deg, #16a085, #1abc9c);">技能详情</button>
                                 ${!canWithdraw ? '<div style="font-size: 10px; color: #e74c3c;">背包已满</div>' : ''}
                             </div>`;
                     });
@@ -4095,6 +4351,7 @@
                 alert(data.message || '孵蛋开始');
                 if (data.success) {
                     selectedPokemonName = null;
+                    selectedPokemonId = null;
                     const selectedDisplay = document.getElementById('selectedPokemonDisplay');
                     if (selectedDisplay) {
                         selectedDisplay.style.display = 'none';
@@ -4387,21 +4644,29 @@
         
         // 批量贩卖精灵相关变量
         let selectedSellPokemons = [];
+        let isBatchSelling = false;
         
         function toggleSellSelection(source, id, name, rarity, price) {
+            if (isBatchSelling) {
+                return;
+            }
             const key = `${source}-${id}`;
             const index = selectedSellPokemons.findIndex(p => p.key === key);
+            const checkbox = document.getElementById(`sell-checkbox-${source}-${id}`);
+            if (!checkbox) {
+                return;
+            }
             
             if (index > -1) {
                 // 取消选择
                 selectedSellPokemons.splice(index, 1);
-                document.getElementById(`sell-checkbox-${source}-${id}`).style.background = '#fff';
-                document.getElementById(`sell-checkbox-${source}-${id}`).style.borderColor = '#ddd';
+                checkbox.style.background = '#fff';
+                checkbox.style.borderColor = '#ddd';
             } else {
                 // 选择
                 selectedSellPokemons.push({ key, source, id, name, rarity, price });
-                document.getElementById(`sell-checkbox-${source}-${id}`).style.background = '#27ae60';
-                document.getElementById(`sell-checkbox-${source}-${id}`).style.borderColor = '#27ae60';
+                checkbox.style.background = '#27ae60';
+                checkbox.style.borderColor = '#27ae60';
             }
             
             updateBatchSellButton();
@@ -4409,64 +4674,100 @@
         
         function updateBatchSellButton() {
             const btn = document.getElementById('batchSellButton');
+            if (!btn) {
+                return;
+            }
             if (selectedSellPokemons.length === 0) {
                 btn.style.display = 'none';
+                btn.disabled = false;
             } else {
                 btn.style.display = 'block';
+                btn.disabled = isBatchSelling;
                 const totalPrice = selectedSellPokemons.reduce((sum, p) => sum + p.price, 0);
-                btn.innerHTML = `💰 批量贩卖 (${selectedSellPokemons.length}只) - 共${totalPrice}金币`;
+                btn.textContent = isBatchSelling
+                    ? '批量贩卖中...'
+                    : `💰 批量贩卖 (${selectedSellPokemons.length}只) - 共${totalPrice}金币`;
             }
         }
         
-        async function sellPokemonBatch() {
-            if (selectedSellPokemons.length === 0) return;
-            
-            // 检查是否选择了背包中的所有精灵
-            const backpackSelectedCount = selectedSellPokemons.filter(p => p.source === 'backpack').length;
-            const totalBackpackCount = window.currentBackpackCount || 0;
-            
-            if (backpackSelectedCount > 0 && backpackSelectedCount >= totalBackpackCount) {
-                alert('❌ 无法交易！至少需要保留一只精灵在背包中！');
-                return;
+        async function sellPokemonBatch(event) {
+            if (event) {
+                event.stopPropagation();
             }
-            
+            if (isBatchSelling || selectedSellPokemons.length === 0) return;
+
             const totalPrice = selectedSellPokemons.reduce((sum, p) => sum + p.price, 0);
             const names = selectedSellPokemons.map(p => p.name).join('、');
             
-            if (!confirm(`确定要贩卖以下 ${selectedSellPokemons.length} 只精灵吗？\n${names}\n\n将获得 ${totalPrice} 金币！`)) {
+            const confirmed = await openConfirmMenuDialog(
+                '批量贩卖确认',
+                `确定要贩卖以下 ${selectedSellPokemons.length} 只精灵吗？\n${names}\n\n将获得 ${totalPrice} 金币！`,
+                'warning'
+            );
+            if (!confirmed) {
                 return;
             }
             
             let successCount = 0;
             let failCount = 0;
+            let earnedGold = 0;
+            isBatchSelling = true;
+            updateBatchSellButton();
             
-            for (const pokemon of selectedSellPokemons) {
-                try {
-                    const resp = await fetch(`/game/shop/sell?source=${pokemon.source}&id=${pokemon.id}`, {
-                        method: 'POST'
-                    });
-                    const data = await resp.json();
-                    
-                    if (data.success) {
-                        successCount++;
-                    } else {
-                        failCount++;
-                    }
-                } catch (e) {
-                    failCount++;
+            try {
+                const resp = await fetch('/game/shop/sell-batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: selectedSellPokemons.map(pokemon => ({
+                            source: pokemon.source,
+                            id: pokemon.id
+                        }))
+                    })
+                });
+                const data = await resp.json();
+
+                if (data.success) {
+                    successCount = Number(data.successCount || 0);
+                    failCount = Number(data.failCount || 0);
+                    earnedGold = Number(data.goldEarned || 0);
+                } else {
+                    isBatchSelling = false;
+                    updateBatchSellButton();
+                    openInfoMenuDialog('批量贩卖失败', data.message || '批量贩卖失败', 'error');
+                    return;
                 }
+            } catch (e) {
+                isBatchSelling = false;
+                updateBatchSellButton();
+                openInfoMenuDialog('批量贩卖失败', '批量贩卖失败，请重试', 'error');
+                return;
             }
             
+            isBatchSelling = false;
             selectedSellPokemons = [];
-            alert(`✅ 成功贩卖 ${successCount} 只精灵，失败 ${failCount} 只\n共获得 ${totalPrice} 金币！`);
+            if (failCount === 0) {
+                openInfoMenuDialog(
+                    '批量贩卖成功',
+                    `成功贩卖 ${successCount} 只精灵，共获得 ${earnedGold} 金币！`,
+                    'success'
+                );
+            } else {
+                openInfoMenuDialog(
+                    '批量贩卖完成',
+                    `成功贩卖 ${successCount} 只精灵，失败 ${failCount} 只，共获得 ${earnedGold} 金币。`,
+                    'warning'
+                );
+            }
             
             // 刷新显示
-            showSellPokemonModal();
+            await showSellPokemonModal();
             await refreshShopDisplay();
             updateInventoryStatus();
-            loadPokemons();
+            await loadPokemons();
             // 刷新训练师对战和副本挑战按钮状态
             checkTrainerBattleEligibility();
+            await checkNewAchievements();
         }
 
         // ========== 贩卖精灵 JS ==========
@@ -4486,6 +4787,7 @@
             
             // 清空之前的选择
             selectedSellPokemons = [];
+            isBatchSelling = false;
             
             try {
                 // 获取金币
@@ -4509,7 +4811,7 @@
                 let html = '';
                 
                 // 批量贩卖按钮
-                html += '<div id="batchSellButton" style="display: none; position: sticky; top: 0; z-index: 10; background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onclick="sellPokemonBatch()">💰 批量贩卖</div>';
+                html += '<button type="button" id="batchSellButton" style="display: none; position: sticky; top: 0; z-index: 10; width: 100%; border: none; background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onclick="sellPokemonBatch(event)">💰 批量贩卖</button>';
                 
                 // 背包精灵
                 if (backpackItems.length > 0) {
@@ -4520,8 +4822,9 @@
                         const imagePath = `/images/pokemon/${item.pokemonName}.png`;
                         const rarity = item.rarity || 1;
                         const price = SELL_PRICES[rarity] || 50;
+                        const canSell = !item.used;
                         html += `
-                            <div style="border: 2px solid #ddd; border-radius: 12px; padding: 12px; background: linear-gradient(145deg, #f9f9f9, #f0f0f0); text-align: center; cursor: pointer; position: relative;" onclick="toggleSellSelection('backpack', ${item.id}, '${item.pokemonName}', ${rarity}, ${price})">
+                            <div style="border: 2px solid #ddd; border-radius: 12px; padding: 12px; background: ${canSell ? 'linear-gradient(145deg, #f9f9f9, #f0f0f0)' : 'linear-gradient(145deg, #eceff1, #dfe6e9)'}; text-align: center; cursor: ${canSell ? 'pointer' : 'not-allowed'}; position: relative; opacity: ${canSell ? '1' : '0.72'};" onclick="${canSell ? `toggleSellSelection('backpack', ${item.id}, '${item.pokemonName}', ${rarity}, ${price})` : ''}">
                                 <div id="sell-checkbox-backpack-${item.id}" style="position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; transition: all 0.3s;">✓</div>
                                 <div style="width: 60px; height: 60px; margin: 0 auto 8px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 6px;">
                                     <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
@@ -4532,7 +4835,9 @@
                                 <div style="background: linear-gradient(135deg, #fff9e6, #ffe4b5); border-radius: 8px; padding: 6px; margin-bottom: 8px;">
                                     <div style="font-size: 12px; color: #f39c12; font-weight: bold;">💰 ${price} 金币</div>
                                 </div>
-                                <button class="restart-btn" onclick="event.stopPropagation(); sellPokemon('backpack', ${item.id}, '${item.pokemonName}', ${price})" style="padding: 6px 15px; font-size: 12px; background: linear-gradient(135deg, #e74c3c, #c0392b);">💰 单独贩卖</button>
+                                ${canSell
+                                    ? `<button class="restart-btn" onclick="event.stopPropagation(); sellPokemon('backpack', ${item.id}, '${item.pokemonName}', ${price})" style="padding: 6px 15px; font-size: 12px; background: linear-gradient(135deg, #e74c3c, #c0392b);">💰 单独贩卖</button>`
+                                    : '<div style="font-size: 11px; color: #636e72; font-weight: bold;">当前出战精灵不可贩卖</div>'}
                             </div>`;
                     });
                     html += '</div>';
@@ -4586,7 +4891,12 @@
                 return;
             }
             
-            if (!confirm(`确定要贩卖 ${name} 吗？\n将获得 ${price} 金币！`)) {
+            const confirmed = await openConfirmMenuDialog(
+                '贩卖确认',
+                `确定要贩卖 ${name} 吗？\n将获得 ${price} 金币！`,
+                'warning'
+            );
+            if (!confirmed) {
                 return;
             }
             
@@ -4597,18 +4907,19 @@
                 const data = await resp.json();
                 
                 if (data.success) {
-                    alert(`✅ ${data.message}`);
+                    openInfoMenuDialog('贩卖成功', data.message || '精灵贩卖成功', 'success');
                     // 刷新显示
-                    showSellPokemonModal();
+                    await showSellPokemonModal();
                     // 更新商店金币显示
                     await refreshShopDisplay();
                     updateInventoryStatus();
                     // 刷新主界面背包精灵
-                    loadPokemons();
+                    await loadPokemons();
                     // 刷新训练师对战和副本挑战按钮状态
                     checkTrainerBattleEligibility();
+                    await checkNewAchievements();
                 } else {
-                    alert(`❌ ${data.message}`);
+                    openInfoMenuDialog('贩卖失败', data.message || '贩卖失败', 'error');
                 }
             } catch (e) {
                 alert('贩卖失败，请重试');
@@ -4652,19 +4963,26 @@
             return colors[type] || '#ddd';
         }
 
+        function applyBattleBallCounts(pokeBalls = {}) {
+            const basicEl = document.getElementById('battleBasicCount');
+            const mediumEl = document.getElementById('battleMediumCount');
+            const advancedEl = document.getElementById('battleAdvancedCount');
+            const masterEl = document.getElementById('battleMasterCount');
+
+            if (basicEl) basicEl.textContent = (pokeBalls.BASIC || 0) + '个';
+            if (mediumEl) mediumEl.textContent = (pokeBalls.MEDIUM || 0) + '个';
+            if (advancedEl) advancedEl.textContent = (pokeBalls.ADVANCED || 0) + '个';
+            if (masterEl) masterEl.textContent = (pokeBalls.MASTER || 0) + '个';
+        }
+
         /**
          * 刷新战斗界面精灵球数量显示
          */
         async function refreshBattleBallCounts() {
             try {
-                const resp = await fetch('/game/inventory');
+                const resp = await fetch(`/game/inventory?_=${Date.now()}`);
                 const data = await resp.json();
-                const pokeBalls = data.pokeBalls || {};
-                
-                document.getElementById('battleBasicCount').textContent = (pokeBalls.BASIC || 0) + '个';
-                document.getElementById('battleMediumCount').textContent = (pokeBalls.MEDIUM || 0) + '个';
-                document.getElementById('battleAdvancedCount').textContent = (pokeBalls.ADVANCED || 0) + '个';
-                document.getElementById('battleMasterCount').textContent = (pokeBalls.MASTER || 0) + '个';
+                applyBattleBallCounts(data.pokeBalls || {});
             } catch (e) {
                 console.error('刷新精灵球数量失败:', e);
             }
@@ -4869,6 +5187,7 @@
                     await loadAchievements();
                     // 刷新金币显示
                     updateInventoryStatus();
+                    await checkNewAchievements();
                 } else {
                     alert(data.message);
                 }
@@ -4987,8 +5306,10 @@
                 if (data.prizePokemon) {
                     updateInventoryStatus();
                     // 同时刷新主界面的精灵选择区（如果当前在主界面）
-                    loadPokemons();
+                    await loadPokemons();
                 }
+
+                await checkNewAchievements();
 
             } catch (e) {
                 console.error('抽奖请求失败:', e);
@@ -5011,6 +5332,9 @@
 
         // 副本挑战相关函数
         function showDungeonModal() {
+            if (!validateAdvancedBattleAccess('副本挑战')) {
+                return;
+            }
             document.getElementById('dungeonModal').style.display = 'flex';
         }
 
@@ -5049,3 +5373,4 @@
     </script>
 </body>
 </html>
+

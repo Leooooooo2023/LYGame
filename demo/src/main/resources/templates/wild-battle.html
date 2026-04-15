@@ -581,7 +581,11 @@
             
             updateBattleDisplay(battleData);
             renderMoves(battleData.playerMoves);
-            loadPokeBallCounts();
+            if (battleData.pokeBalls) {
+                applyPokeBallCounts(battleData.pokeBalls);
+            } else {
+                loadPokeBallCounts();
+            }
             updateBattleRates(); // 初始化捕捉率和逃跑率显示
         };
         
@@ -752,13 +756,29 @@
             }
         }
         
+        function applyPokeBallCounts(pokeBalls) {
+            pokeBallCounts = pokeBalls || {};
+
+            if ((pokeBallCounts[selectedPokeBall] || 0) === 0) {
+                const nextAvailableBall = ['BASIC', 'MEDIUM', 'ADVANCED', 'MASTER']
+                    .find(type => (pokeBallCounts[type] || 0) > 0);
+                if (nextAvailableBall) {
+                    selectedPokeBall = nextAvailableBall;
+                }
+            }
+
+            updatePokeBallButtons();
+            document.querySelectorAll('.pokeball-option').forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.type === selectedPokeBall);
+            });
+        }
+
         // 加载精灵球数量
         async function loadPokeBallCounts() {
             try {
                 const response = await fetch('/game/inventory');
                 const data = await response.json();
-                pokeBallCounts = data.pokeBalls || {};
-                updatePokeBallButtons();
+                applyPokeBallCounts(data.pokeBalls || {});
             } catch (error) {
                 console.error('加载精灵球数量失败:', error);
             }
@@ -835,6 +855,11 @@
                 });
 
                 const data = await response.json();
+                if (data.pokeBalls) {
+                    applyPokeBallCounts(data.pokeBalls);
+                } else {
+                    await loadPokeBallCounts();
+                }
                 if (data.battleLog) {
                     battleData = { ...battleData, ...data };
                     updateBattleDisplay(battleData);

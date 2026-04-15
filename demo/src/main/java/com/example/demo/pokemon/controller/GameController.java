@@ -391,6 +391,7 @@ public class GameController {
             result.put("reward", CATCH_SUCCESS_REWARD);
             result.put("battleLog", logs);
             result.put("placement", placement);
+            result.put("pokeBalls", playerInventoryService.getPlayerInventoryMap(userId));
             return result;
         }
 
@@ -1174,6 +1175,88 @@ public class GameController {
         return fail("来源类型无效");
     }
 
+    @PostMapping("/game/shop/sell-batch")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> sellPokemonBatch(@RequestBody Map<String, Object> payload,
+                                                HttpSession session) {
+        Long userId = getCurrentUserId(session);
+        Object itemsObj = payload.get("items");
+        if (!(itemsObj instanceof List<?> rawItems) || rawItems.isEmpty()) {
+            return fail("未选择要贩卖的精灵");
+        }
+
+        int backpackTotal = (int) backpackRepository.countByUserId(userId);
+
+        int successCount = 0;
+        int failCount = 0;
+        int totalGold = 0;
+        int backpackRemaining = backpackTotal;
+
+        for (Object rawItem : rawItems) {
+            if (!(rawItem instanceof Map<?, ?> itemMap)) {
+                failCount++;
+                continue;
+            }
+
+            String source = String.valueOf(itemMap.containsKey("source") ? itemMap.get("source") : "")
+                    .toLowerCase(Locale.ROOT);
+            Long id;
+            try {
+                id = Long.valueOf(String.valueOf(itemMap.get("id")));
+            } catch (Exception ignored) {
+                failCount++;
+                continue;
+            }
+
+            if ("backpack".equals(source)) {
+                Optional<BackpackEntity> backpackOpt = backpackRepository.findByIdAndUserId(id, userId);
+                if (backpackOpt.isEmpty() || backpackRemaining <= 1 || isCurrentBattlePokemon(userId, id)) {
+                    failCount++;
+                    continue;
+                }
+
+                BackpackEntity backpack = backpackOpt.get();
+                int reward = calculateSellPrice(backpack.getPokemon());
+                backpackRepository.delete(backpack);
+                pokemonService.deletePokemon(backpack.getPokemon().getId());
+                totalGold += reward;
+                successCount++;
+                backpackRemaining--;
+                continue;
+            }
+
+            if ("storage".equals(source)) {
+                Optional<StorageEntity> storageOpt = storageRepository.findByIdAndUserId(id, userId);
+                if (storageOpt.isEmpty()) {
+                    failCount++;
+                    continue;
+                }
+
+                StorageEntity storage = storageOpt.get();
+                int reward = calculateSellPrice(storage.getPokemon());
+                storageRepository.delete(storage);
+                pokemonService.deletePokemon(storage.getPokemon().getId());
+                totalGold += reward;
+                successCount++;
+                continue;
+            }
+
+            failCount++;
+        }
+
+        if (successCount == 0) {
+            return fail("批量贩卖失败，请检查是否选中了不可贩卖的精灵");
+        }
+
+        addGold(userId, totalGold);
+        Map<String, Object> result = successMessage("批量贩卖成功");
+        result.put("successCount", successCount);
+        result.put("failCount", failCount);
+        result.put("goldEarned", totalGold);
+        return result;
+    }
+
     @PostMapping("/game/gold/init")
     @ResponseBody
     @Transactional
@@ -1350,6 +1433,7 @@ public class GameController {
     @ResponseBody
     public Map<String, Object> getAchievements(HttpSession session) {
         Long userId = getCurrentUserId(session);
+        achievementService.checkAchievements(userId, getPlayerGold(userId));
         List<PlayerAchievement> completed = achievementService.getPlayerAchievements(userId);
         Map<AchievementType, PlayerAchievement> completedMap = completed.stream()
                 .collect(Collectors.toMap(PlayerAchievement::getAchievementType, item -> item, (a, b) -> a));
@@ -1387,6 +1471,7 @@ public class GameController {
             if (goldReward > 0) {
                 addGold(userId, goldReward);
             }
+            achievementService.checkAchievements(userId, getPlayerGold(userId));
         }
         return result;
     }
@@ -1943,6 +2028,7 @@ public class GameController {
                 typeEffectivenessService.getEffectiveness(state.enemyPokemon.getType(), playerPokemon.getType()));
         result.put("playerBattleBuffs", describeBattleBuffs(state, playerPokemon));
         result.put("enemyBattleBuffs", state.enemyPokemon == null ? Collections.emptyList() : describeBattleBuffs(state, state.enemyPokemon));
+        result.put("pokeBalls", playerInventoryService.getPlayerInventoryMap(state.userId));
 
         if (state.mode == BattleMode.TRAINER) {
             result.put("isTrainerBattle", true);
