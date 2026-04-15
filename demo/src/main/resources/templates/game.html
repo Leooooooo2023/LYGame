@@ -769,7 +769,7 @@
             <div class="battle-arena">
                 <div class="pokemon-battle-card">
                     <div class="battle-pokemon-image-container">
-                        <img id="playerImage" src="" alt="玩家精灵" class="battle-pokemon-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img id="playerImage" src="" alt="玩家精灵" class="battle-pokemon-image" onerror="handlePokemonImageError(this, '玩家');">
                         <div id="playerImagePlaceholder" class="battle-pokemon-placeholder" style="display:none;">玩家</div>
                     </div>
                     <h3 id="playerName">玩家</h3>
@@ -785,7 +785,7 @@
                 <div class="vs">VS</div>
                 <div class="pokemon-battle-card">
                     <div class="battle-pokemon-image-container">
-                        <img id="enemyImage" src="" alt="敌方精灵" class="battle-pokemon-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img id="enemyImage" src="" alt="敌方精灵" class="battle-pokemon-image" onerror="handlePokemonImageError(this, '敌方');">
                         <div id="enemyImagePlaceholder" class="battle-pokemon-placeholder" style="display:none;">敌方</div>
                     </div>
                     <h3 id="enemyName">敌方</h3>
@@ -1500,7 +1500,7 @@
                 <!-- 火凤凰副本 -->
                 <div style="border: 2px solid #e74c3c; border-radius: 12px; padding: 20px; background: linear-gradient(145deg, #ffebee, #ffcdd2); text-align: center;">
                     <div style="width: 80px; height: 80px; margin: 0 auto 15px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 10px;">
-                        <img src="/images/pokemon/火凤凰.png" alt="火凤凰" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='🔥'; this.parentElement.style.fontSize='40px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+                        <img src="/images/pokemon/huofenghuang.png" alt="火凤凰" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '🔥');">
                     </div>
                     <div style="font-weight: bold; color: #e74c3c; font-size: 18px; margin-bottom: 5px;">烈焰山脉</div>
                     <div style="font-size: 12px; margin-bottom: 8px;">火凤凰守护</div>
@@ -1511,7 +1511,7 @@
                 
                 <div style="border: 2px solid #3498db; border-radius: 12px; padding: 20px; background: linear-gradient(145deg, #e3f2fd, #bbdefb); text-align: center;">
                     <div style="width: 80px; height: 80px; margin: 0 auto 15px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 10px;">
-                        <img src="/images/pokemon/潮汐海皇.png" alt="潮汐海皇" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='🌊'; this.parentElement.style.fontSize='40px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+                        <img src="/images/pokemon/chaoxihaihuang.png" alt="潮汐海皇" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '🌊');">
                     </div>
                     <div style="font-weight: bold; color: #3498db; font-size: 18px; margin-bottom: 5px;">深海漩涡</div>
                     <div style="font-size: 12px; margin-bottom: 8px;">潮汐海皇守护</div>
@@ -1522,7 +1522,7 @@
                 
                 <div style="border: 2px solid #27ae60; border-radius: 12px; padding: 20px; background: linear-gradient(145deg, #e8f5e9, #c8e6c9); text-align: center;">
                     <div style="width: 80px; height: 80px; margin: 0 auto 15px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 10px;">
-                        <img src="/images/pokemon/灵光鹿.png" alt="灵光鹿" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='🦌'; this.parentElement.style.fontSize='40px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+                        <img src="/images/pokemon/lingguanglu.png" alt="灵光鹿" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '🦌');">
                     </div>
                     <div style="font-weight: bold; color: #27ae60; font-size: 18px; margin-bottom: 5px;">远古森林</div>
                     <div style="font-size: 12px; margin-bottom: 8px;">灵光鹿守护</div>
@@ -1665,7 +1665,82 @@
         const BGM_STORAGE_KEY = 'pokemon_game_bgm_muted';
         const MENU_BGM_SRC = '/audio/menu-bgm.mp3';
         const BATTLE_BGM_SRC = '/audio/battle-bgm.mp3';
+        const DEFAULT_POKEMON_IMAGE = '/images/pokemon/default.png';
+        const POKEMON_IMAGE_MAP = {
+            '小火狐': 'xiaohuohu.png',
+            '烈焰虎': 'lieyanhu.png',
+            '熔岩兽': 'rongyanshou.png',
+            '小水滴': 'xiaoshuidi.png',
+            '水手企鹅': 'shuishouqie.png',
+            '激流鲨': 'jiliusha.png',
+            '深海巨鲸': 'shenhaijujing.png',
+            '潮汐海皇': 'chaoxihaihuang.png',
+            '嫩芽苗': 'nenyamiao.png',
+            '叶伞蛙': 'yesanwa.png',
+            '远古树精': 'yuangushujing.png',
+            '灵光鹿': 'lingguanglu.png',
+            '迅影鼠': 'xunyingshu.png',
+            '月灵兔': 'yuelingtu.png',
+            '毒蘑菇': 'dumogu.png',
+            '岩甲熊': 'yanjiaxiong.png',
+            '晶石巨人': 'jingshijuren.png',
+            '战神驼': 'zhanshentuo.png',
+            '宝贝龙': 'baobeilong.png',
+            '火凤凰': 'huofenghuang.png'
+        };
         let saveStatusCache = null;
+
+        function getPokemonImageFileName(pokemonName) {
+            return POKEMON_IMAGE_MAP[pokemonName] || 'default.png';
+        }
+
+        function getPokemonImagePath(pokemonName) {
+            return `/images/pokemon/${getPokemonImageFileName(pokemonName)}`;
+        }
+
+        function showPokemonImageFallback(img, fallbackText = '?') {
+            if (!img) {
+                return;
+            }
+
+            img.style.display = 'none';
+
+            const placeholder = img.nextElementSibling;
+            if (placeholder && placeholder.style) {
+                placeholder.textContent = fallbackText || placeholder.textContent || '?';
+                placeholder.style.display = 'flex';
+                return;
+            }
+
+            const container = img.parentElement;
+            if (!container) {
+                return;
+            }
+
+            container.innerHTML = '';
+            container.style.display = 'flex';
+            container.style.alignItems = 'center';
+            container.style.justifyContent = 'center';
+
+            const fallbackNode = document.createElement('span');
+            fallbackNode.textContent = fallbackText || '?';
+            fallbackNode.style.fontSize = '40px';
+            container.appendChild(fallbackNode);
+        }
+
+        function handlePokemonImageError(img, fallbackText = '?') {
+            if (!img) {
+                return;
+            }
+
+            if (img.dataset.fallbackApplied === 'true') {
+                showPokemonImageFallback(img, fallbackText);
+                return;
+            }
+
+            img.dataset.fallbackApplied = 'true';
+            img.src = DEFAULT_POKEMON_IMAGE;
+        }
 
         function isBgmMuted() {
             return localStorage.getItem(BGM_STORAGE_KEY) === 'true';
@@ -2161,11 +2236,11 @@
                     movesHtml = '<div>加载技能失败</div>';
                 }
                 
-                const imagePath = `/images/pokemon/${pokemon.name}.png`;
+                const imagePath = getPokemonImagePath(pokemon.name);
                 
                 card.innerHTML = `
                     <div class="pokemon-image-container">
-                        <img src="${imagePath}" alt="${pokemon.name}" class="pokemon-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img src="${imagePath}" alt="${pokemon.name}" class="pokemon-image" onerror="handlePokemonImageError(this, '${pokemon.name}');">
                         <div class="pokemon-placeholder" style="display:none;">${pokemon.name}</div>
                     </div>
                     <div class="pokemon-card-info">
@@ -2213,11 +2288,11 @@
                     movesHtml = '<div>加载技能失败</div>';
                 }
                 
-                const imagePath = `/images/pokemon/${pokemon.name}.png`;
+                const imagePath = getPokemonImagePath(pokemon.name);
                 
                 card.innerHTML = `
                     <div class="pokemon-image-container">
-                        <img src="${imagePath}" alt="${pokemon.name}" class="pokemon-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img src="${imagePath}" alt="${pokemon.name}" class="pokemon-image" onerror="handlePokemonImageError(this, '${pokemon.name}');">
                         <div class="pokemon-placeholder" style="display:none;">${pokemon.name}</div>
                     </div>
                     <div class="pokemon-card-info">
@@ -2579,7 +2654,8 @@
             const playerPlaceholder = document.getElementById('playerImagePlaceholder');
             if (playerImage && player) {
                 playerImage.style.display = 'block';
-                playerImage.src = `/images/pokemon/${player.name}.png`;
+                playerImage.src = getPokemonImagePath(player.name);
+                delete playerImage.dataset.fallbackApplied;
                 if (playerPlaceholder) {
                     playerPlaceholder.textContent = player.name;
                     playerPlaceholder.style.display = 'none';
@@ -2590,7 +2666,8 @@
             const enemyPlaceholder = document.getElementById('enemyImagePlaceholder');
             if (enemyImage && enemy) {
                 enemyImage.style.display = 'block';
-                enemyImage.src = `/images/pokemon/${enemy.name}.png`;
+                enemyImage.src = getPokemonImagePath(enemy.name);
+                delete enemyImage.dataset.fallbackApplied;
                 if (enemyPlaceholder) {
                     enemyPlaceholder.textContent = enemy.name;
                     enemyPlaceholder.style.display = 'none';
@@ -2904,7 +2981,7 @@
                 }
 
                 const pokemon = data.pokemon;
-                const imagePath = `/images/pokemon/${pokemon.name}.png`;
+                const imagePath = getPokemonImagePath(pokemon.name);
                 const moves = pokemon.moves || [];
                 const talents = pokemon.talents || [];
                 const moveHtml = moves.length > 0
@@ -2928,7 +3005,7 @@
                     <div style="display:grid; grid-template-columns: minmax(220px, 260px) 1fr; gap: 18px; align-items: start;">
                         <div style="background: linear-gradient(145deg, #f9f9f9, #f0f0f0); border-radius: 16px; padding: 18px; text-align: center;">
                             <div style="width: 110px; height: 110px; margin: 0 auto 12px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 10px;">
-                                <img src="${imagePath}" alt="${pokemon.name}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                <img src="${imagePath}" alt="${pokemon.name}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${pokemon.name}');">
                             </div>
                             <div style="font-size: 22px; font-weight: bold; color: ${getTypeColor(pokemon.type)}; margin-bottom: 6px;">${pokemon.name}</div>
                             <div style="margin-bottom: 8px;">${getRarityStars(pokemon.rarity)}</div>
@@ -2999,7 +3076,7 @@
                     let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">';
                     items.forEach(item => {
                         const typeColor = getTypeColor(item.pokemonType);
-                        const imagePath = `/images/pokemon/${item.pokemonName}.png`;
+                        const imagePath = getPokemonImagePath(item.pokemonName);
                         const currentHp = parseInt(item.currentHp) || 0;
                         const maxHp = parseInt(item.maxHp) || 1;
                         const currentMp = parseInt(item.currentMp) || 0;
@@ -3007,7 +3084,7 @@
                         html += `
                             <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9; text-align: center;">
                                 <div style="width: 80px; height: 80px; margin: 0 auto 10px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 8px;">
-                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${item.pokemonName}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 5px;">${item.pokemonName} ${item.used ? '<span style="color: #27ae60;">[已出战]</span>' : ''}</div>
                                 <div style="font-size: 12px; color: #666; margin-bottom: 5px;">等级: Lv.${item.level} | 属性: ${getTypeName(item.pokemonType)} | ${getGenderBadge(item.gender, item.genderLabel)}</div>
@@ -3044,7 +3121,7 @@
                     let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">';
                     items.forEach(item => {
                         const typeColor = getTypeColor(item.pokemonType);
-                        const imagePath = `/images/pokemon/${item.pokemonName}.png`;
+                        const imagePath = getPokemonImagePath(item.pokemonName);
                         const rarity = item.rarity || 1;
                         const currentHp = parseInt(item.currentHp) || 0;
                         const maxHp = parseInt(item.maxHp) || 1;
@@ -3055,7 +3132,7 @@
                         html += `
                             <div style="border: 2px solid #ddd; border-radius: 12px; padding: 15px; background: linear-gradient(145deg, #f9f9f9, #f0f0f0); text-align: center;">
                                 <div style="width: 70px; height: 70px; margin: 0 auto 10px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 8px;">
-                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${item.pokemonName}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName} ${item.used ? '<span style="color: #27ae60;">[出战]</span>' : ''}</div>
                                 <div style="font-size: 11px; margin-bottom: 5px;">${getRarityStars(rarity)}</div>
@@ -3350,7 +3427,7 @@
                     entries.forEach(entry => {
                         const typeColor = getTypeColor(entry.pokemonType);
                         const caughtMark = entry.caught ? '✅' : '❓';
-                        const imagePath = `/images/pokemon/${entry.pokemonName}.png`;
+                        const imagePath = getPokemonImagePath(entry.pokemonName);
                         // 战神驼特殊标识（已获得时才显示）
                         const isGodCamel = entry.pokemonName === '战神驼';
                         const specialBadge = (isGodCamel && entry.caught) ? '<span style="background: linear-gradient(135deg, #fd79a8, #e84393); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 5px;">特等奖</span>' : '';
@@ -3362,7 +3439,7 @@
                             html += `
                             <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #e8f5e9; text-align: center;">
                                 <div style="width: 80px; height: 80px; margin: 0 auto 10px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 8px;">
-                                    <img src="${imagePath}" alt="${entry.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${entry.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${entry.pokemonName}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">
                                     ${caughtMark} ${entry.pokemonName}${specialBadge}
@@ -3378,7 +3455,7 @@
                             html += `
                             <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9; text-align: center; opacity: 0.8;">
                                 <div style="width: 80px; height: 80px; margin: 0 auto 10px; background: linear-gradient(145deg, #d5d5d5, #b0b0b0); border-radius: 50%; padding: 8px;">
-                                    <img src="${imagePath}" alt="${entry.pokemonName}" style="width: 100%; height: 100%; object-fit: contain; filter: grayscale(100%) brightness(0.75); opacity: 0.85;" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=&quot;font-size: 40px; color: #888;&quot;>?</span>'; this.parentNode.style.display='flex'; this.parentNode.style.alignItems='center'; this.parentNode.style.justifyContent='center';">
+                                    <img src="${imagePath}" alt="${entry.pokemonName}" style="width: 100%; height: 100%; object-fit: contain; filter: grayscale(100%) brightness(0.75); opacity: 0.85;" onerror="handlePokemonImageError(this, '?');">
                                 </div>
                                 <div style="font-weight: bold; color: #888; margin-bottom: 5px;">❓ 未知精灵</div>
                                 <div style="font-size: 12px; color: #aaa; margin-bottom: 5px;">${getTypeName(entry.pokemonType)}</div>
@@ -3677,11 +3754,11 @@
                     let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">';
                     pokemons.forEach(pokemon => {
                         const typeColor = getTypeColor(pokemon.type);
-                        const imagePath = `/images/pokemon/${pokemon.name}.png`;
+                        const imagePath = getPokemonImagePath(pokemon.name);
                         html += `
                             <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9; text-align: center;">
                                 <div style="width: 70px; height: 70px; margin: 0 auto 10px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 8px;">
-                                    <img src="${imagePath}" alt="${pokemon.name}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${pokemon.name}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${pokemon.name}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; font-size: 16px; margin-bottom: 3px;">${pokemon.name}</div>
                                 <div style="font-size: 11px; margin-bottom: 5px;">${getRarityStars(pokemon.rarity)}</div>
@@ -3943,11 +4020,11 @@
                     backpack.forEach(item => {
                         const typeColor = getTypeColor(item.pokemonType);
                         const canDeposit = backpack.length > 1;
-                        const imagePath = `/images/pokemon/${item.pokemonName}.png`;
+                        const imagePath = getPokemonImagePath(item.pokemonName);
                         html += `
                             <div id="backpack-item-${item.id}" onclick="toggleBackpackSelection(${item.id}, ${canDeposit})" style="border: 2px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9; text-align: center; cursor: pointer; transition: all 0.3s;">
                                 <div style="width: 60px; height: 60px; margin: 0 auto 10px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 6px;">
-                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${item.pokemonName}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(item.rarity)}</div>
@@ -3967,11 +4044,11 @@
                     storageData.storage.forEach(item => {
                         const typeColor = getTypeColor(item.pokemonType);
                         const canWithdraw = status.backpackCount < status.backpackMax;
-                        const imagePath = `/images/pokemon/${item.pokemonName}.png`;
+                        const imagePath = getPokemonImagePath(item.pokemonName);
                         html += `
                             <div id="storage-item-${item.id}" onclick="toggleStorageSelection(${item.id}, ${canWithdraw})" style="border: 2px solid #ddd; border-radius: 12px; padding: 15px; background: #e8f5e9; text-align: center; cursor: pointer; transition: all 0.3s;">
                                 <div style="width: 60px; height: 60px; margin: 0 auto 10px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 6px;">
-                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${item.pokemonName}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; margin-bottom: 3px;">${item.pokemonName}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(item.rarity)}</div>
@@ -4822,7 +4899,7 @@
                     html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">';
                     backpackItems.forEach(item => {
                         const typeColor = getTypeColor(item.pokemonType);
-                        const imagePath = `/images/pokemon/${item.pokemonName}.png`;
+                        const imagePath = getPokemonImagePath(item.pokemonName);
                         const rarity = item.rarity || 1;
                         const price = SELL_PRICES[rarity] || 50;
                         const canSell = !item.currentBattle;
@@ -4830,7 +4907,7 @@
                             <div style="border: 2px solid #ddd; border-radius: 12px; padding: 12px; background: ${canSell ? 'linear-gradient(145deg, #f9f9f9, #f0f0f0)' : 'linear-gradient(145deg, #eceff1, #dfe6e9)'}; text-align: center; cursor: ${canSell ? 'pointer' : 'not-allowed'}; position: relative; opacity: ${canSell ? '1' : '0.72'};" onclick="${canSell ? `toggleSellSelection('backpack', ${item.id}, '${item.pokemonName}', ${rarity}, ${price})` : ''}">
                                 <div id="sell-checkbox-backpack-${item.id}" style="position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; transition: all 0.3s;">✓</div>
                                 <div style="width: 60px; height: 60px; margin: 0 auto 8px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 6px;">
-                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${item.pokemonName}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; font-size: 14px; margin-bottom: 3px;">${item.pokemonName} ${item.currentBattle ? '<span style="color: #27ae60;">[当前出战]</span>' : (item.used ? '<span style="color: #7f8c8d;">[已出战]</span>' : '')}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(rarity)}</div>
@@ -4852,14 +4929,14 @@
                     html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">';
                     storageItems.forEach(item => {
                         const typeColor = getTypeColor(item.pokemonType);
-                        const imagePath = `/images/pokemon/${item.pokemonName}.png`;
+                        const imagePath = getPokemonImagePath(item.pokemonName);
                         const rarity = item.rarity || 1;
                         const price = SELL_PRICES[rarity] || 50;
                         html += `
                             <div style="border: 2px solid #ddd; border-radius: 12px; padding: 12px; background: linear-gradient(145deg, #f9f9f9, #f0f0f0); text-align: center; cursor: pointer; position: relative;" onclick="toggleSellSelection('storage', ${item.id}, '${item.pokemonName}', ${rarity}, ${price})">
                                 <div id="sell-checkbox-storage-${item.id}" style="position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; transition: all 0.3s;">✓</div>
                                 <div style="width: 60px; height: 60px; margin: 0 auto 8px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 6px;">
-                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
+                                    <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="handlePokemonImageError(this, '${item.pokemonName}');">
                                 </div>
                                 <div style="font-weight: bold; color: ${typeColor}; font-size: 14px; margin-bottom: 3px;">${item.pokemonName}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(rarity)}</div>
