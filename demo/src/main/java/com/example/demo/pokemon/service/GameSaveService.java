@@ -1,10 +1,12 @@
 package com.example.demo.pokemon.service;
 
 import com.example.demo.pokemon.entity.BackpackEntity;
+import com.example.demo.pokemon.entity.PlayerEgg;
 import com.example.demo.pokemon.entity.StorageEntity;
 import com.example.demo.pokemon.entity.User;
 import com.example.demo.pokemon.repository.BackpackRepository;
 import com.example.demo.pokemon.repository.PlayerAchievementRepository;
+import com.example.demo.pokemon.repository.PlayerEggRepository;
 import com.example.demo.pokemon.repository.PokedexRepository;
 import com.example.demo.pokemon.repository.StorageRepository;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class GameSaveService {
     private final StorageRepository storageRepository;
     private final PokedexRepository pokedexRepository;
     private final PlayerAchievementRepository achievementRepository;
+    private final PlayerEggRepository playerEggRepository;
     private final PlayerInventoryService playerInventoryService;
     private final PlayerHealingItemService playerHealingItemService;
     private final PokemonService pokemonService;
@@ -35,6 +38,7 @@ public class GameSaveService {
                            StorageRepository storageRepository,
                            PokedexRepository pokedexRepository,
                            PlayerAchievementRepository achievementRepository,
+                           PlayerEggRepository playerEggRepository,
                            PlayerInventoryService playerInventoryService,
                            PlayerHealingItemService playerHealingItemService,
                            PokemonService pokemonService,
@@ -43,6 +47,7 @@ public class GameSaveService {
         this.storageRepository = storageRepository;
         this.pokedexRepository = pokedexRepository;
         this.achievementRepository = achievementRepository;
+        this.playerEggRepository = playerEggRepository;
         this.playerInventoryService = playerInventoryService;
         this.playerHealingItemService = playerHealingItemService;
         this.pokemonService = pokemonService;
@@ -67,6 +72,10 @@ public class GameSaveService {
             return true;
         }
 
+        if (!playerEggRepository.findByUserIdOrderByCreatedAtAsc(userId).isEmpty()) {
+            return true;
+        }
+
         return authService.getUserById(userId)
                 .map(user -> user.getGold() != INITIAL_GOLD || user.getStorageCapacity() != STORAGE_BASE_SIZE)
                 .orElse(false);
@@ -76,6 +85,7 @@ public class GameSaveService {
     public void resetForNewGame(Long userId) {
         List<BackpackEntity> backpackEntries = backpackRepository.findByUserIdOrderByCaughtTimeDesc(userId);
         List<StorageEntity> storageEntries = storageRepository.findByUserIdOrderByStoredTimeDesc(userId);
+        List<PlayerEgg> eggEntries = playerEggRepository.findByUserIdOrderByCreatedAtAsc(userId);
         Set<Long> ownedPokemonIds = new LinkedHashSet<>();
 
         backpackEntries.stream()
@@ -86,7 +96,16 @@ public class GameSaveService {
                 .map(StorageEntity::getPokemon)
                 .filter(pokemon -> pokemon != null && pokemon.getId() != null)
                 .forEach(pokemon -> ownedPokemonIds.add(pokemon.getId()));
+        eggEntries.stream()
+                .map(PlayerEgg::getFatherPokemon)
+                .filter(pokemon -> pokemon != null && pokemon.getId() != null)
+                .forEach(pokemon -> ownedPokemonIds.add(pokemon.getId()));
+        eggEntries.stream()
+                .map(PlayerEgg::getMotherPokemon)
+                .filter(pokemon -> pokemon != null && pokemon.getId() != null)
+                .forEach(pokemon -> ownedPokemonIds.add(pokemon.getId()));
 
+        playerEggRepository.deleteAll(eggEntries);
         backpackRepository.deleteAll(backpackEntries);
         storageRepository.deleteAll(storageEntries);
 

@@ -57,7 +57,7 @@
         .pokemon-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
+            gap: 7px;
             margin-top: 4px;
             align-content: start;
             width: 100%;
@@ -65,12 +65,12 @@
         .pokemon-card {
             background: linear-gradient(145deg, #f5f5f5, #e0e0e0);
             border-radius: 15px;
-            padding: 10px 76px 10px 10px;
+            padding: 14px 108px 12px 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             border: 3px solid transparent;
             position: relative;
-            min-height: 174px;
+            min-height: 350px;
             overflow: hidden;
         }
         .pokemon-card:hover {
@@ -98,14 +98,14 @@
             box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2);
         }
         .pokemon-image-container {
-            width: 56px;
-            height: 56px;
+            width: 88px;
+            height: 88px;
             background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
-            border-radius: 10px;
-            padding: 5px;
+            border-radius: 12px;
+            padding: 7px;
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 12px;
+            right: 12px;
             box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.08);
         }
         .pokemon-image {
@@ -128,8 +128,8 @@
         .pokemon-card h3 {
             text-align: left;
             margin-bottom: 3px;
-            font-size: 0.96em;
-            padding-right: 8px;
+            font-size: 1em;
+            padding-right: 10px;
         }
         .type-fire { color: #e74c3c; }
         .type-water { color: #3498db; }
@@ -137,8 +137,8 @@
         .pokemon-stats {
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            margin: 4px 0;
+            gap: 3px;
+            margin: 5px 0;
             font-size: 0.71em;
             color: #555;
         }
@@ -146,33 +146,34 @@
             max-width: calc(100% - 4px);
         }
         .pokemon-card-meta {
-            font-size: 10px;
-            color: #666;
-            margin-bottom: 2px;
-            line-height: 1.2;
-        }
-        .pokemon-card-talent {
-            font-size: 10px;
+            font-size: 10.5px;
             color: #666;
             margin-bottom: 4px;
-            line-height: 1.2;
+            line-height: 1.25;
+        }
+        .pokemon-card-talent {
+            font-size: 10.5px;
+            color: #666;
+            margin-bottom: 6px;
+            line-height: 1.25;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
         .pokemon-card .moves-list {
-            margin-top: 2px;
+            margin-top: 4px;
             display: flex;
             flex-wrap: wrap;
-            gap: 3px;
-            max-height: 28px;
-            overflow: hidden;
+            gap: 4px;
+            max-height: 88px;
+            overflow: visible;
         }
         .pokemon-card .move-tag {
-            padding: 3px 6px;
-            font-size: 9px;
+            padding: 4px 7px;
+            font-size: 10px;
             margin: 0;
+            line-height: 1.2;
         }
         .select-btn {
             width: 100%;
@@ -4715,32 +4716,34 @@
             updateBatchSellButton();
             
             try {
-                const resp = await fetch('/game/shop/sell-batch', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        items: selectedSellPokemons.map(pokemon => ({
-                            source: pokemon.source,
-                            id: pokemon.id
-                        }))
-                    })
-                });
-                const data = await resp.json();
+                for (const pokemon of selectedSellPokemons) {
+                    try {
+                        const resp = await fetch(`/game/shop/sell?source=${pokemon.source}&id=${pokemon.id}`, {
+                            method: 'POST'
+                        });
+                        const data = await resp.json();
 
-                if (data.success) {
-                    successCount = Number(data.successCount || 0);
-                    failCount = Number(data.failCount || 0);
-                    earnedGold = Number(data.goldEarned || 0);
-                } else {
-                    isBatchSelling = false;
-                    updateBatchSellButton();
-                    openInfoMenuDialog('批量贩卖失败', data.message || '批量贩卖失败', 'error');
-                    return;
+                        if (data.success) {
+                            successCount++;
+                            earnedGold += Number(pokemon.price || 0);
+                        } else {
+                            failCount++;
+                        }
+                    } catch (e) {
+                        failCount++;
+                    }
                 }
             } catch (e) {
                 isBatchSelling = false;
                 updateBatchSellButton();
                 openInfoMenuDialog('批量贩卖失败', '批量贩卖失败，请重试', 'error');
+                return;
+            }
+
+            if (successCount === 0) {
+                isBatchSelling = false;
+                updateBatchSellButton();
+                openInfoMenuDialog('批量贩卖失败', '批量贩卖失败，请检查是否选中了不可贩卖的精灵', 'error');
                 return;
             }
             
@@ -4822,14 +4825,14 @@
                         const imagePath = `/images/pokemon/${item.pokemonName}.png`;
                         const rarity = item.rarity || 1;
                         const price = SELL_PRICES[rarity] || 50;
-                        const canSell = !item.used;
+                        const canSell = !item.currentBattle;
                         html += `
                             <div style="border: 2px solid #ddd; border-radius: 12px; padding: 12px; background: ${canSell ? 'linear-gradient(145deg, #f9f9f9, #f0f0f0)' : 'linear-gradient(145deg, #eceff1, #dfe6e9)'}; text-align: center; cursor: ${canSell ? 'pointer' : 'not-allowed'}; position: relative; opacity: ${canSell ? '1' : '0.72'};" onclick="${canSell ? `toggleSellSelection('backpack', ${item.id}, '${item.pokemonName}', ${rarity}, ${price})` : ''}">
                                 <div id="sell-checkbox-backpack-${item.id}" style="position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; transition: all 0.3s;">✓</div>
                                 <div style="width: 60px; height: 60px; margin: 0 auto 8px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); border-radius: 50%; padding: 6px;">
                                     <img src="${imagePath}" alt="${item.pokemonName}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';">
                                 </div>
-                                <div style="font-weight: bold; color: ${typeColor}; font-size: 14px; margin-bottom: 3px;">${item.pokemonName} ${item.used ? '<span style="color: #27ae60;">[出战]</span>' : ''}</div>
+                                <div style="font-weight: bold; color: ${typeColor}; font-size: 14px; margin-bottom: 3px;">${item.pokemonName} ${item.currentBattle ? '<span style="color: #27ae60;">[当前出战]</span>' : (item.used ? '<span style="color: #7f8c8d;">[已出战]</span>' : '')}</div>
                                 <div style="font-size: 10px; margin-bottom: 5px;">${getRarityStars(rarity)}</div>
                                 <div style="font-size: 11px; color: #666; margin-bottom: 8px;">${getTypeName(item.pokemonType)} | Lv.${item.level}</div>
                                 <div style="background: linear-gradient(135deg, #fff9e6, #ffe4b5); border-radius: 8px; padding: 6px; margin-bottom: 8px;">
